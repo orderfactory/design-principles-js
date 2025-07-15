@@ -305,3 +305,16 @@ Design for Testability is a software design principle that emphasizes creating c
 
 **Key Concept:**
 The Design for Testability principle is violated when code is written in a way that makes it difficult or impossible to test in isolation. In the violation example, an authentication service has hard-coded dependencies, no separation of concerns, hidden side effects, and direct access to global state, making it nearly impossible to test specific behaviors without complex setup. The correct implementation uses dependency injection, clear separation of concerns, and well-defined interfaces to create a system that can be easily tested with mock objects, allowing for comprehensive unit tests that verify behavior in isolation.
+
+### 24. Meaningful Naming Principle (MN)
+
+The Meaningful Naming principle states that developers should use clear, descriptive names for variables, functions, classes, etc. Choosing good names significantly improves code readability and maintainability. Well-chosen identifiers act as documentation and reduce the mental overhead for anyone reading or modifying the code later.
+
+**Location:** [meaningful-naming-principle](./meaningful-naming-principle)
+
+**Files:**
+- [correct-implementation.js](./meaningful-naming-principle/correct-implementation.js) - Shows a proper implementation of MN using a task management system with clear, descriptive names for classes, methods, and variables
+- [violation.js](./meaningful-naming-principle/violation.js) - Demonstrates a violation of MN with cryptic, unclear, and inconsistent names that make the code difficult to understand
+
+**Key Concept:**
+The Meaningful Naming principle is violated when code uses unclear, cryptic, or inconsistent names that obscure the purpose and behavior of the code. In the violation example, a task management system uses abbreviated class names like 'TM' instead of 'Task', cryptic method names like 'mC' instead of 'markAsCompleted', and single-letter variable names that give no indication of their purpose. The correct implementation uses descriptive class names, intention-revealing method names, and consistent naming conventions, making the code self-documenting and easier to understand, maintain, and extend.
