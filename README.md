@@ -383,3 +383,16 @@ The Single Level of Abstraction Principle states that code within a method or fu
 
 **Key Concept:**
 The Single Level of Abstraction Principle is violated when methods mix high-level operations with low-level implementation details. In the violation example, methods combine orchestration with specific implementation details, making the code harder to read, understand, and maintain. The correct implementation separates high-level operations (that call other methods) from low-level operations (that implement specific tasks), creating a hierarchical structure that improves readability, maintainability, and testability. By following SLAP, the code becomes more coherent and reduces the cognitive load required to understand it.
+
+### 30. Least Common Mechanism Principle (LCM)
+
+The Least Common Mechanism Principle states that we should minimize the amount of functionality or mechanism that is shared between different parts of a system. Each component should have its own specialized mechanisms rather than relying on shared, general-purpose mechanisms.
+
+**Location:** [least-common-mechanism-principle](./least-common-mechanism-principle)
+
+**Files:**
+- [correct-implementation.js](./least-common-mechanism-principle/correct-implementation.js) - Shows a proper implementation of LCM using a user management system with specialized mechanisms for different user types
+- [violation.js](./least-common-mechanism-principle/violation.js) - Demonstrates a violation of LCM with a single, general-purpose mechanism shared across different user types
+
+**Key Concept:**
+The Least Common Mechanism Principle is violated when a system uses a single, general-purpose mechanism that is shared across different components or user types. In the violation example, a user management system implements a single User class with complex conditional logic to handle different user types (admin, regular, guest), leading to increased complexity, reduced security, and maintenance issues. The correct implementation provides specialized classes for each user type, each with its own tailored authentication mechanism and functionality, making the code more maintainable, secure, and easier to extend.
