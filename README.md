@@ -292,3 +292,16 @@ Modularity is the practice of organizing code into separate, independent modules
 
 **Key Concept:**
 The Modularity principle is violated when code is not properly separated into independent modules with clear interfaces. In the violation example, an e-commerce application is implemented as a monolithic object with all functionality (products, cart, orders, UI) mixed together, leading to tight coupling, low cohesion, and difficulty in maintenance and testing. The correct implementation separates the application into distinct modules (ProductModule, CartModule, OrderModule), each with a single responsibility and well-defined interfaces, making the code more maintainable, reusable, and testable.
+
+### 23. Design for Testability Principle (DfT)
+
+Design for Testability is a software design principle that emphasizes creating code that can be easily and thoroughly tested. Systems should be built so they can be easily and reliably tested, which often means writing modular, loosely-coupled code and providing hooks for automated tests.
+
+**Location:** [design-for-testability-principle](./design-for-testability-principle)
+
+**Files:**
+- [correct-implementation.js](./design-for-testability-principle/correct-implementation.js) - Shows a proper implementation of DfT using an authentication service with dependency injection and clear separation of concerns
+- [violation.js](./design-for-testability-principle/violation.js) - Demonstrates a violation of DfT with a tightly coupled authentication service that is difficult to test
+
+**Key Concept:**
+The Design for Testability principle is violated when code is written in a way that makes it difficult or impossible to test in isolation. In the violation example, an authentication service has hard-coded dependencies, no separation of concerns, hidden side effects, and direct access to global state, making it nearly impossible to test specific behaviors without complex setup. The correct implementation uses dependency injection, clear separation of concerns, and well-defined interfaces to create a system that can be easily tested with mock objects, allowing for comprehensive unit tests that verify behavior in isolation.
