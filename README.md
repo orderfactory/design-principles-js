@@ -357,3 +357,16 @@ The Command-Query Separation principle states that every method should be either
 
 **Key Concept:**
 The Command-Query Separation principle is violated when methods both change state and return values, creating side effects that make code harder to understand, test, and maintain. In the violation example, a bank account implementation has methods that both modify the account state and return information about that state, leading to unpredictable behavior and making it difficult to reason about the code. The correct implementation clearly separates commands (deposit, withdraw) from queries (getBalance, getTransactionHistory), making the code more predictable, easier to test, and simpler to maintain.
+
+### 28. Design by Contract Principle (DbC)
+
+Design by Contract is a software design approach where components have formal, precise, and verifiable interface specifications in the form of preconditions, postconditions, and invariants. Preconditions specify what must be true before a method executes, postconditions specify what must be true after a method executes, and invariants specify what must remain true throughout the execution of a method.
+
+**Location:** [design-by-contract-principle](./design-by-contract-principle)
+
+**Files:**
+- [correct-implementation.js](./design-by-contract-principle/correct-implementation.js) - Shows a proper implementation of DbC using a bank account system with explicit contracts for each method
+- [violation.js](./design-by-contract-principle/violation.js) - Demonstrates a violation of DbC with missing or incomplete contracts and inconsistent error handling
+
+**Key Concept:**
+The Design by Contract principle is violated when code lacks explicit contracts, has incomplete precondition checks, fails to enforce postconditions, or doesn't maintain object invariants. In the violation example, a bank account implementation has missing or incomplete precondition checks, no postcondition verification, and allows the object to enter invalid states, leading to unpredictable behavior and data integrity issues. The correct implementation explicitly defines and enforces contracts for each method, with clear preconditions, postconditions, and invariants, making the code more reliable, self-documenting, and easier to debug when issues arise.
