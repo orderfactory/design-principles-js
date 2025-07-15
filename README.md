@@ -240,3 +240,16 @@ The Separation of Concerns principle states that a program should be divided int
 
 **Key Concept:**
 The Separation of Concerns principle is violated when different concerns (like data storage, business logic, and presentation) are mixed together in the same components. In the violation example, a monolithic UserManager class handles data structure, storage, business logic, presentation, and even email functionality, making the code difficult to understand, test, and maintain. The correct implementation separates these concerns into distinct classes (User, UserRepository, UserService, and UserView), each with a single responsibility, making the code more modular, easier to understand, and simpler to maintain.
+
+### 19. High Cohesion and Low Coupling Principle (HCLC)
+
+The High Cohesion and Low Coupling principle suggests that components should have high cohesion (focused on a single responsibility) and low coupling (minimal dependencies on other components). This creates more maintainable, reusable, and testable code by ensuring that components are well-focused and independent.
+
+**Location:** [high-cohesion-low-coupling-principle](./high-cohesion-low-coupling-principle)
+
+**Files:**
+- [correct-implementation.js](./high-cohesion-low-coupling-principle/correct-implementation.js) - Shows a proper implementation of HCLC using an e-commerce order processing system with focused components and minimal dependencies
+- [violation.js](./high-cohesion-low-coupling-principle/violation.js) - Demonstrates a violation of HCLC with a monolithic class that has low cohesion and high coupling
+
+**Key Concept:**
+The High Cohesion and Low Coupling principle is violated when components have multiple unrelated responsibilities (low cohesion) and tight dependencies on other components (high coupling). In the violation example, a monolithic ECommerceSystem class handles product management, shopping cart, customer management, order processing, payment processing, and notifications, making it difficult to understand, test, and maintain. The correct implementation separates these concerns into distinct classes (Product, ShoppingCart, OrderProcessor, PaymentService, NotificationService), each with a single responsibility and minimal dependencies, making the code more modular, easier to understand, and simpler to maintain.
