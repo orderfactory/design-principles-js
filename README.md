@@ -253,3 +253,16 @@ The High Cohesion and Low Coupling principle suggests that components should hav
 
 **Key Concept:**
 The High Cohesion and Low Coupling principle is violated when components have multiple unrelated responsibilities (low cohesion) and tight dependencies on other components (high coupling). In the violation example, a monolithic ECommerceSystem class handles product management, shopping cart, customer management, order processing, payment processing, and notifications, making it difficult to understand, test, and maintain. The correct implementation separates these concerns into distinct classes (Product, ShoppingCart, OrderProcessor, PaymentService, NotificationService), each with a single responsibility and minimal dependencies, making the code more modular, easier to understand, and simpler to maintain.
+
+### 20. Encapsulation Principle (E)
+
+Encapsulation is the bundling of data and methods that operate on that data within a single unit (class), and restricting access to some of the object's components. It hides the internal state and requires all interaction to be performed through an object's methods.
+
+**Location:** [encapsulation-principle](./encapsulation-principle)
+
+**Files:**
+- [correct-implementation.js](./encapsulation-principle/correct-implementation.js) - Shows a proper implementation of encapsulation using a BankAccount class with private fields and controlled access through methods
+- [violation.js](./encapsulation-principle/violation.js) - Demonstrates a violation of encapsulation with a BankAccount class that exposes its internal state and lacks proper data protection
+
+**Key Concept:**
+The Encapsulation principle is violated when internal state is directly exposed and can be modified without any control or validation. In the violation example, a BankAccount class exposes all its properties publicly, allowing direct modification of the balance, manipulation of transaction history, and even replacement of methods, leading to data integrity issues and security vulnerabilities. The correct implementation uses private fields and methods (using the # syntax in JavaScript) and provides controlled access through public methods that include validation, ensuring data integrity and hiding implementation details from users of the class.
