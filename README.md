@@ -370,3 +370,16 @@ Design by Contract is a software design approach where components have formal, p
 
 **Key Concept:**
 The Design by Contract principle is violated when code lacks explicit contracts, has incomplete precondition checks, fails to enforce postconditions, or doesn't maintain object invariants. In the violation example, a bank account implementation has missing or incomplete precondition checks, no postcondition verification, and allows the object to enter invalid states, leading to unpredictable behavior and data integrity issues. The correct implementation explicitly defines and enforces contracts for each method, with clear preconditions, postconditions, and invariants, making the code more reliable, self-documenting, and easier to debug when issues arise.
+
+### 29. Single Level of Abstraction Principle (SLAP)
+
+The Single Level of Abstraction Principle states that code within a method or function should be at the same level of abstraction. This means that high-level operations should not be mixed with low-level details in the same method. Each method should either contain high-level operations (calling other methods) or low-level operations (implementation details), but not both.
+
+**Location:** [single-level-of-abstraction-principle](./single-level-of-abstraction-principle)
+
+**Files:**
+- [correct-implementation.js](./single-level-of-abstraction-principle/correct-implementation.js) - Shows a proper implementation of SLAP using a document processing system with clear separation between high-level and low-level operations
+- [violation.js](./single-level-of-abstraction-principle/violation.js) - Demonstrates a violation of SLAP by mixing different levels of abstraction within the same methods
+
+**Key Concept:**
+The Single Level of Abstraction Principle is violated when methods mix high-level operations with low-level implementation details. In the violation example, methods combine orchestration with specific implementation details, making the code harder to read, understand, and maintain. The correct implementation separates high-level operations (that call other methods) from low-level operations (that implement specific tasks), creating a hierarchical structure that improves readability, maintainability, and testability. By following SLAP, the code becomes more coherent and reduces the cognitive load required to understand it.
