@@ -45,3 +45,16 @@ The Dependency Inversion Principle states that high-level modules should not dep
 
 **Key Concept:**
 The DIP is violated when high-level modules directly depend on low-level modules instead of abstractions. In the violation example, the NotificationService directly instantiates and uses concrete implementations, creating tight coupling. The correct implementation uses dependency injection and abstractions to decouple the high-level module from the specific implementations.
+
+### 4. Interface Segregation Principle (ISP)
+
+The Interface Segregation Principle states that clients should not be forced to depend upon interfaces that they do not use.
+
+**Location:** [interface-segregation-principle](./interface-segregation-principle)
+
+**Files:**
+- [correct-implementation.js](./interface-segregation-principle/correct-implementation.js) - Shows a proper implementation of ISP using specific, focused interfaces for different device capabilities
+- [violation.js](./interface-segregation-principle/violation.js) - Demonstrates a violation of ISP with a "fat interface" that forces classes to implement methods they don't need
+
+**Key Concept:**
+The ISP is violated when interfaces are too large and force implementing classes to provide implementations for methods they don't use. In the violation example, a MultiFunctionDevice interface forces BasicPrinter and BasicScanner to implement methods they don't support, leading to runtime errors. The correct implementation uses smaller, focused interfaces and composition to create objects with exactly the capabilities they need.
