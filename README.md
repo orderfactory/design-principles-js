@@ -110,3 +110,16 @@ The KISS principle states that most systems work best if they are kept simple ra
 
 **Key Concept:**
 The KISS principle is violated when solutions are made more complex than necessary. In the violation example, a simple calculator is over-engineered with unnecessary abstractions, class hierarchies, and features that don't add value. The correct implementation solves the same problem with a simple, straightforward approach that's easy to understand and maintain, demonstrating that the simplest solution is often the best.
+
+### 9. Tell Don't Ask (TDA)
+
+The Tell Don't Ask principle suggests that objects should tell other objects what to do rather than asking for their state and making decisions based on that state. This promotes encapsulation and reduces coupling between objects.
+
+**Location:** [tell-dont-ask-principle](./tell-dont-ask-principle)
+
+**Files:**
+- [correct-implementation.js](./tell-dont-ask-principle/correct-implementation.js) - Shows a proper implementation of TDA using a shopping cart system where objects tell other objects what to do
+- [violation.js](./tell-dont-ask-principle/violation.js) - Demonstrates a violation of TDA where objects expose their internal state and other objects make decisions based on that state
+
+**Key Concept:**
+The Tell Don't Ask principle is violated when objects expose their internal state and other objects make decisions based on that state. In the violation example, a shopping cart exposes its items and discount rate, and an order processor asks for this state to perform calculations that should be encapsulated in the cart. The correct implementation encapsulates behavior within objects and has objects tell other objects what to do, promoting better encapsulation and reducing coupling.
