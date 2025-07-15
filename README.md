@@ -123,3 +123,16 @@ The Tell Don't Ask principle suggests that objects should tell other objects wha
 
 **Key Concept:**
 The Tell Don't Ask principle is violated when objects expose their internal state and other objects make decisions based on that state. In the violation example, a shopping cart exposes its items and discount rate, and an order processor asks for this state to perform calculations that should be encapsulated in the cart. The correct implementation encapsulates behavior within objects and has objects tell other objects what to do, promoting better encapsulation and reducing coupling.
+
+### 10. Convention over Configuration (CoC)
+
+The Convention over Configuration principle suggests that software should use sensible defaults and follow established conventions, reducing the need for explicit configuration. This makes development faster and easier by minimizing the number of decisions developers need to make.
+
+**Location:** [convention-over-configuration-principle](./convention-over-configuration-principle)
+
+**Files:**
+- [correct-implementation.js](./convention-over-configuration-principle/correct-implementation.js) - Shows a proper implementation of CoC using a form validation library that automatically determines validation rules based on naming conventions
+- [violation.js](./convention-over-configuration-principle/violation.js) - Demonstrates a violation of CoC where every aspect of the system requires explicit configuration, even for common patterns
+
+**Key Concept:**
+The Convention over Configuration principle is violated when software requires explicit configuration for every aspect, even when following common patterns that could be inferred through conventions. In the violation example, a form validation library requires developers to explicitly configure every validation rule for every field, creating unnecessary complexity and verbosity. The correct implementation uses naming conventions to automatically determine validation rules, providing sensible defaults and only requiring explicit configuration for exceptions to the conventions, making the code more concise, maintainable, and developer-friendly.
