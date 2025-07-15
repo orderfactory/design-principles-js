@@ -201,3 +201,16 @@ The Dynamic Systems Development Method (DSDM) is an agile project delivery frame
 
 **Key Concept:**
 The DSDM principle is violated when projects lack proper prioritization, timeboxing, and stakeholder involvement. In the violation example, a project proceeds without MoSCoW prioritization, leading to work on non-essential features before core functionality, and without timeboxed iterations, resulting in scattered focus and poor time management. The correct implementation demonstrates a well-structured project with clear phases (Feasibility, Foundations, Evolutionary Development, Deployment), MoSCoW prioritization (Must have, Should have, Could have, Won't have), timeboxed development, and active stakeholder involvement, ensuring that the most critical functionality is always prioritized and delivered, even if time constraints require some less critical features to be deferred.
+
+### 16. Fail Fast Principle (FF)
+
+The Fail Fast Principle suggests that a system should detect and report errors as early as possible rather than allowing them to propagate. This helps identify issues quickly, makes debugging easier, and prevents cascading failures.
+
+**Location:** [fail-fast-principle](./fail-fast-principle)
+
+**Files:**
+- [correct-implementation.js](./fail-fast-principle/correct-implementation.js) - Shows a proper implementation of FF using a user registration system that validates inputs immediately and throws errors as soon as problems are detected
+- [violation.js](./fail-fast-principle/violation.js) - Demonstrates a violation of FF with a system that delays validation, allows invalid data to propagate, and silently handles errors
+
+**Key Concept:**
+The Fail Fast principle is violated when a system delays validation, allows invalid data to propagate through the system, or silently handles errors without proper reporting. In the violation example, a user registration system processes data before validating it, collects errors instead of throwing them immediately, and allows processing to continue with invalid data, making it harder to trace the source of problems. The correct implementation validates all inputs immediately before proceeding, throws specific errors as soon as problems are detected, and prevents invalid data from propagating through the system, making debugging easier and preventing cascading failures.
