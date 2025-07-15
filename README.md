@@ -84,3 +84,16 @@ The YAGNI principle suggests that you shouldn't add functionality until it's act
 
 **Key Concept:**
 The YAGNI principle is violated when developers implement features that aren't currently required, based on speculation about future needs. In the violation example, an authentication system is built with many speculative features like password reset, email verification, session management, and two-factor authentication, adding unnecessary complexity. The correct implementation focuses only on the current requirements (basic user registration and login), making the code simpler, faster to develop, and easier to maintain.
+
+### 7. Don't Repeat Yourself (DRY)
+
+The DRY principle states that "Every piece of knowledge must have a single, unambiguous, authoritative representation within a system." This means avoiding duplication of code and logic.
+
+**Location:** [dry-principle](./dry-principle)
+
+**Files:**
+- [correct-implementation.js](./dry-principle/correct-implementation.js) - Shows a proper implementation of DRY by centralizing calculation logic and reusing methods
+- [violation.js](./dry-principle/violation.js) - Demonstrates a violation of DRY with repeated code and duplicated logic
+
+**Key Concept:**
+The DRY principle is violated when the same piece of logic or knowledge is duplicated in multiple places. In the violation example, a shopping cart implementation repeats calculation logic for subtotal, tax, shipping, and discounts across multiple methods. The correct implementation centralizes each calculation in a single method and reuses these methods where needed, making the code more maintainable, less prone to errors, and easier to modify when requirements change.
