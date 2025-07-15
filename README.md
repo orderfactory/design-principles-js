@@ -214,3 +214,16 @@ The Fail Fast Principle suggests that a system should detect and report errors a
 
 **Key Concept:**
 The Fail Fast principle is violated when a system delays validation, allows invalid data to propagate through the system, or silently handles errors without proper reporting. In the violation example, a user registration system processes data before validating it, collects errors instead of throwing them immediately, and allows processing to continue with invalid data, making it harder to trace the source of problems. The correct implementation validates all inputs immediately before proceeding, throws specific errors as soon as problems are detected, and prevents invalid data from propagating through the system, making debugging easier and preventing cascading failures.
+
+### 17. Occam's Razor Principle (OR)
+
+The Occam's Razor Principle states that "entities should not be multiplied without necessity" or more simply, "the simplest solution is usually the best one." In programming, this means choosing the simplest solution that meets the requirements, avoiding unnecessary complexity, and not adding features or abstractions unless they're needed.
+
+**Location:** [occams-razor-principle](./occams-razor-principle)
+
+**Files:**
+- [correct-implementation.js](./occams-razor-principle/correct-implementation.js) - Shows a proper implementation of OR using a simple text formatter that uses the simplest approach for each task
+- [violation.js](./occams-razor-principle/violation.js) - Demonstrates a violation of OR with an over-engineered text formatter that adds unnecessary complexity and abstractions
+
+**Key Concept:**
+The Occam's Razor principle is violated when solutions are made more complex than necessary, with unnecessary abstractions, features, or patterns that don't provide real benefits for the current requirements. In the violation example, a simple text formatter is over-engineered with class hierarchies, factory patterns, caching mechanisms, and analytics features that aren't needed. The correct implementation solves the same problem with a simple, straightforward approach that's easy to understand and maintain, demonstrating that the simplest solution that meets the requirements is usually the best one.
