@@ -344,3 +344,16 @@ Postel's Robustness Principle (also known as the Law of Robustness) states: "Be 
 
 **Key Concept:**
 Postel's Robustness Principle is violated when code is strict about input formats (not liberal in what it accepts) and inconsistent in its output formats (not conservative in what it sends). In the violation example, a user profile service rejects inputs that don't exactly match expectations and returns inconsistent response formats, making it difficult to use and integrate with. The correct implementation accepts and normalizes various input formats while always returning well-structured, consistent responses, creating a more robust, user-friendly, and interoperable system.
+
+### 27. Command-Query Separation Principle (CQS)
+
+The Command-Query Separation principle states that every method should be either a command that performs an action, or a query that returns data to the caller, but not both. Commands change state but don't return values, while queries return values but don't change state.
+
+**Location:** [command-query-separation-principle](./command-query-separation-principle)
+
+**Files:**
+- [correct-implementation.js](./command-query-separation-principle/correct-implementation.js) - Shows a proper implementation of CQS using a bank account system with clear separation between commands and queries
+- [violation.js](./command-query-separation-principle/violation.js) - Demonstrates a violation of CQS with methods that both change state and return values
+
+**Key Concept:**
+The Command-Query Separation principle is violated when methods both change state and return values, creating side effects that make code harder to understand, test, and maintain. In the violation example, a bank account implementation has methods that both modify the account state and return information about that state, leading to unpredictable behavior and making it difficult to reason about the code. The correct implementation clearly separates commands (deposit, withdraw) from queries (getBalance, getTransactionHistory), making the code more predictable, easier to test, and simpler to maintain.
