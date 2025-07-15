@@ -331,3 +331,16 @@ The Exceptions Should Be Exceptional principle states that exceptions should be 
 
 **Key Concept:**
 The Exceptions Should Be Exceptional principle is violated when code uses exceptions for normal flow control, such as for expected conditions like missing parameters, user not found, or input validation. In the violation example, a user data processing system throws exceptions for normal, expected conditions and uses catch blocks for regular flow control, creating performance issues and obscuring the intent of the code. The correct implementation uses conditional checks for expected scenarios and reserves exceptions for truly unexpected errors, making the code more efficient, clearer in intent, and easier to maintain.
+
+### 26. Postel's Robustness Principle (PR)
+
+Postel's Robustness Principle (also known as the Law of Robustness) states: "Be conservative in what you do, be liberal in what you accept from others." In programming, this means accepting a wide range of inputs (being liberal in what you accept) but producing only well-formed outputs (being conservative in what you send).
+
+**Location:** [postels-robustness-principle](./postels-robustness-principle)
+
+**Files:**
+- [correct-implementation.js](./postels-robustness-principle/correct-implementation.js) - Shows a proper implementation of PR using a user profile API that accepts various input formats but always returns standardized outputs
+- [violation.js](./postels-robustness-principle/violation.js) - Demonstrates a violation of PR by being strict in what it accepts and inconsistent in what it produces
+
+**Key Concept:**
+Postel's Robustness Principle is violated when code is strict about input formats (not liberal in what it accepts) and inconsistent in its output formats (not conservative in what it sends). In the violation example, a user profile service rejects inputs that don't exactly match expectations and returns inconsistent response formats, making it difficult to use and integrate with. The correct implementation accepts and normalizes various input formats while always returning well-structured, consistent responses, creating a more robust, user-friendly, and interoperable system.
