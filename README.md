@@ -162,3 +162,16 @@ The Composition over Inheritance principle suggests that you should favor object
 
 **Key Concept:**
 The Composition over Inheritance principle is violated when code relies heavily on inheritance hierarchies to reuse code and create specialized types. In the violation example, a game character system uses deep inheritance to create different character types, leading to code duplication, rigid hierarchies, and exponential growth of classes as new abilities are added. The correct implementation uses composition to create characters by combining simple, focused ability components, making the code more flexible, eliminating duplication, and allowing for easy creation of characters with arbitrary combinations of abilities.
+
+### 13. Principle of Least Astonishment (PoLA)
+
+The Principle of Least Astonishment states that a component of a system should behave in a way that users expect it to behave, reducing surprise or astonishment when they interact with it. This principle is about designing intuitive interfaces that align with users' mental models.
+
+**Location:** [principle-of-least-astonishment](./principle-of-least-astonishment)
+
+**Files:**
+- [correct-implementation.js](./principle-of-least-astonishment/correct-implementation.js) - Shows a proper implementation of PoLA using intuitive function behavior with consistent parameter ordering, clear naming, and expected return values
+- [violation.js](./principle-of-least-astonishment/violation.js) - Demonstrates a violation of PoLA with functions that behave in surprising or counterintuitive ways
+
+**Key Concept:**
+The Principle of Least Astonishment is violated when code behaves in ways that surprise or confuse users. In the violation example, functions and methods have misleading names, inconsistent parameter ordering, unexpected return values, and hidden side effects that modify data unexpectedly. The correct implementation follows established conventions with intuitive method names, consistent parameter ordering, predictable return values, and no surprising side effects, making the code more intuitive, easier to use correctly, and less prone to bugs caused by misunderstandings.
