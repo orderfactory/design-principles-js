@@ -266,3 +266,16 @@ Encapsulation is the bundling of data and methods that operate on that data with
 
 **Key Concept:**
 The Encapsulation principle is violated when internal state is directly exposed and can be modified without any control or validation. In the violation example, a BankAccount class exposes all its properties publicly, allowing direct modification of the balance, manipulation of transaction history, and even replacement of methods, leading to data integrity issues and security vulnerabilities. The correct implementation uses private fields and methods (using the # syntax in JavaScript) and provides controlled access through public methods that include validation, ensuring data integrity and hiding implementation details from users of the class.
+
+### 21. Abstraction Principle (A)
+
+Abstraction is the concept of hiding complex implementation details and exposing only the necessary parts of an object. It allows us to model real-world entities by focusing on what an object does rather than how it does it.
+
+**Location:** [abstraction-principle](./abstraction-principle)
+
+**Files:**
+- [correct-implementation.js](./abstraction-principle/correct-implementation.js) - Shows a proper implementation of abstraction using a MediaPlayer hierarchy that hides complex implementation details
+- [violation.js](./abstraction-principle/violation.js) - Demonstrates a violation of abstraction by exposing too many implementation details and forcing clients to understand internal workings
+
+**Key Concept:**
+The Abstraction principle is violated when implementation details are exposed and clients are forced to understand the internal workings of an object. In the violation example, a MediaPlayer class exposes internal details like buffers, codecs, and decoder states, forcing clients to understand these details and follow a complex sequence of method calls. The correct implementation uses an abstract base class with a clear interface, hiding complex implementation details in concrete subclasses, and providing a factory to further abstract the creation process. This makes the code more maintainable, extensible, and easier to use, as clients can focus on what the object does rather than how it does it.
