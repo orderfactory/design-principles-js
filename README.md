@@ -58,3 +58,16 @@ The Interface Segregation Principle states that clients should not be forced to 
 
 **Key Concept:**
 The ISP is violated when interfaces are too large and force implementing classes to provide implementations for methods they don't use. In the violation example, a MultiFunctionDevice interface forces BasicPrinter and BasicScanner to implement methods they don't support, leading to runtime errors. The correct implementation uses smaller, focused interfaces and composition to create objects with exactly the capabilities they need.
+
+### 5. Single Responsibility Principle (SRP)
+
+The Single Responsibility Principle states that a class should have only one reason to change, meaning it should have only one responsibility.
+
+**Location:** [single-responsibility-principle](./single-responsibility-principle)
+
+**Files:**
+- [correct-implementation.js](./single-responsibility-principle/correct-implementation.js) - Shows a proper implementation of SRP using separate classes for user data, validation, and persistence
+- [violation.js](./single-responsibility-principle/violation.js) - Demonstrates a violation of SRP with a single class handling multiple responsibilities
+
+**Key Concept:**
+The SRP is violated when a class takes on multiple responsibilities, giving it multiple reasons to change. In the violation example, a User class handles data management, validation, persistence, and reporting, making it difficult to maintain and test. The correct implementation separates these concerns into distinct classes, each with a single responsibility, making the code more modular, easier to understand, and simpler to maintain.
