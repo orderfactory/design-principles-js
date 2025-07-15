@@ -279,3 +279,16 @@ Abstraction is the concept of hiding complex implementation details and exposing
 
 **Key Concept:**
 The Abstraction principle is violated when implementation details are exposed and clients are forced to understand the internal workings of an object. In the violation example, a MediaPlayer class exposes internal details like buffers, codecs, and decoder states, forcing clients to understand these details and follow a complex sequence of method calls. The correct implementation uses an abstract base class with a clear interface, hiding complex implementation details in concrete subclasses, and providing a factory to further abstract the creation process. This makes the code more maintainable, extensible, and easier to use, as clients can focus on what the object does rather than how it does it.
+
+### 22. Modularity Principle (M)
+
+Modularity is the practice of organizing code into separate, independent modules with clear interfaces. Each module should have a single responsibility and minimal dependencies on other modules.
+
+**Location:** [modularity-principle](./modularity-principle)
+
+**Files:**
+- [correct-implementation.js](./modularity-principle/correct-implementation.js) - Shows a proper implementation of modularity using an e-commerce system with separate modules for products, cart, and orders
+- [violation.js](./modularity-principle/violation.js) - Demonstrates a violation of modularity with a monolithic application that mixes all functionality together
+
+**Key Concept:**
+The Modularity principle is violated when code is not properly separated into independent modules with clear interfaces. In the violation example, an e-commerce application is implemented as a monolithic object with all functionality (products, cart, orders, UI) mixed together, leading to tight coupling, low cohesion, and difficulty in maintenance and testing. The correct implementation separates the application into distinct modules (ProductModule, CartModule, OrderModule), each with a single responsibility and well-defined interfaces, making the code more maintainable, reusable, and testable.
