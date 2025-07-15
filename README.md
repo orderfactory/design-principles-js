@@ -136,3 +136,16 @@ The Convention over Configuration principle suggests that software should use se
 
 **Key Concept:**
 The Convention over Configuration principle is violated when software requires explicit configuration for every aspect, even when following common patterns that could be inferred through conventions. In the violation example, a form validation library requires developers to explicitly configure every validation rule for every field, creating unnecessary complexity and verbosity. The correct implementation uses naming conventions to automatically determine validation rules, providing sensible defaults and only requiring explicit configuration for exceptions to the conventions, making the code more concise, maintainable, and developer-friendly.
+
+### 11. Law of Demeter (LoD)
+
+The Law of Demeter (LoD), also known as the "Principle of Least Knowledge" or "Don't Talk to Strangers," states that an object should only interact with its immediate collaborators and not with the "neighbors of neighbors." This promotes loose coupling and better encapsulation.
+
+**Location:** [law-of-demeter-principle](./law-of-demeter-principle)
+
+**Files:**
+- [correct-implementation.js](./law-of-demeter-principle/correct-implementation.js) - Shows a proper implementation of LoD using a customer order system where objects only interact with their immediate collaborators
+- [violation.js](./law-of-demeter-principle/violation.js) - Demonstrates a violation of LoD where objects directly access and manipulate the internal components of other objects
+
+**Key Concept:**
+The Law of Demeter is violated when an object accesses the internal components of another object and then calls methods on those components ("talking to strangers"). In the violation example, an OrderProcessor directly accesses a customer's wallet and address objects and manipulates them, creating tight coupling between classes. The correct implementation encapsulates these interactions within the Customer class, which acts as a mediator, ensuring that each object only interacts with its immediate collaborators, making the system more maintainable and adaptable to change.
