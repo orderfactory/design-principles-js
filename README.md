@@ -318,3 +318,16 @@ The Meaningful Naming principle states that developers should use clear, descrip
 
 **Key Concept:**
 The Meaningful Naming principle is violated when code uses unclear, cryptic, or inconsistent names that obscure the purpose and behavior of the code. In the violation example, a task management system uses abbreviated class names like 'TM' instead of 'Task', cryptic method names like 'mC' instead of 'markAsCompleted', and single-letter variable names that give no indication of their purpose. The correct implementation uses descriptive class names, intention-revealing method names, and consistent naming conventions, making the code self-documenting and easier to understand, maintain, and extend.
+
+### 25. Exceptions Should Be Exceptional Principle (ESBE)
+
+The Exceptions Should Be Exceptional principle states that exceptions should be used only for exceptional conditions and not for regular flow control. Exceptions are expensive operations in terms of performance and should be reserved for truly exceptional paths.
+
+**Location:** [exceptions-should-be-exceptional-principle](./exceptions-should-be-exceptional-principle)
+
+**Files:**
+- [correct-implementation.js](./exceptions-should-be-exceptional-principle/correct-implementation.js) - Shows a proper implementation of ESBE using a user data processing system that uses conditional checks for expected scenarios and reserves exceptions for truly exceptional conditions
+- [violation.js](./exceptions-should-be-exceptional-principle/violation.js) - Demonstrates a violation of ESBE by using exceptions for regular flow control instead of using normal control structures like conditionals
+
+**Key Concept:**
+The Exceptions Should Be Exceptional principle is violated when code uses exceptions for normal flow control, such as for expected conditions like missing parameters, user not found, or input validation. In the violation example, a user data processing system throws exceptions for normal, expected conditions and uses catch blocks for regular flow control, creating performance issues and obscuring the intent of the code. The correct implementation uses conditional checks for expected scenarios and reserves exceptions for truly unexpected errors, making the code more efficient, clearer in intent, and easier to maintain.
