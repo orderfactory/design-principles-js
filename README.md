@@ -227,3 +227,16 @@ The Occam's Razor Principle states that "entities should not be multiplied witho
 
 **Key Concept:**
 The Occam's Razor principle is violated when solutions are made more complex than necessary, with unnecessary abstractions, features, or patterns that don't provide real benefits for the current requirements. In the violation example, a simple text formatter is over-engineered with class hierarchies, factory patterns, caching mechanisms, and analytics features that aren't needed. The correct implementation solves the same problem with a simple, straightforward approach that's easy to understand and maintain, demonstrating that the simplest solution that meets the requirements is usually the best one.
+
+### 18. Separation of Concerns Principle (SoC)
+
+The Separation of Concerns principle states that a program should be divided into distinct sections, where each section addresses a separate concern. A concern is a set of information that affects the code of a computer program. This principle improves maintainability, reusability, and testability by ensuring that different aspects of the application are independent of each other.
+
+**Location:** [separation-of-concerns-principle](./separation-of-concerns-principle)
+
+**Files:**
+- [correct-implementation.js](./separation-of-concerns-principle/correct-implementation.js) - Shows a proper implementation of SoC using a user management system with clear separation between data model, data access, business logic, and presentation
+- [violation.js](./separation-of-concerns-principle/violation.js) - Demonstrates a violation of SoC with a monolithic class that mixes multiple concerns together
+
+**Key Concept:**
+The Separation of Concerns principle is violated when different concerns (like data storage, business logic, and presentation) are mixed together in the same components. In the violation example, a monolithic UserManager class handles data structure, storage, business logic, presentation, and even email functionality, making the code difficult to understand, test, and maintain. The correct implementation separates these concerns into distinct classes (User, UserRepository, UserService, and UserView), each with a single responsibility, making the code more modular, easier to understand, and simpler to maintain.
