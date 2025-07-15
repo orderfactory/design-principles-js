@@ -149,3 +149,16 @@ The Law of Demeter (LoD), also known as the "Principle of Least Knowledge" or "D
 
 **Key Concept:**
 The Law of Demeter is violated when an object accesses the internal components of another object and then calls methods on those components ("talking to strangers"). In the violation example, an OrderProcessor directly accesses a customer's wallet and address objects and manipulates them, creating tight coupling between classes. The correct implementation encapsulates these interactions within the Customer class, which acts as a mediator, ensuring that each object only interacts with its immediate collaborators, making the system more maintainable and adaptable to change.
+
+### 12. Composition over Inheritance (COI)
+
+The Composition over Inheritance principle suggests that you should favor object composition over class inheritance when designing your code. Instead of creating complex inheritance hierarchies, compose objects by combining simpler objects and behaviors.
+
+**Location:** [composition-over-inheritance-principle](./composition-over-inheritance-principle)
+
+**Files:**
+- [correct-implementation.js](./composition-over-inheritance-principle/correct-implementation.js) - Shows a proper implementation of COI using a game character system where characters are composed of various abilities
+- [violation.js](./composition-over-inheritance-principle/violation.js) - Demonstrates a violation of COI with a rigid inheritance hierarchy that becomes increasingly complex
+
+**Key Concept:**
+The Composition over Inheritance principle is violated when code relies heavily on inheritance hierarchies to reuse code and create specialized types. In the violation example, a game character system uses deep inheritance to create different character types, leading to code duplication, rigid hierarchies, and exponential growth of classes as new abilities are added. The correct implementation uses composition to create characters by combining simple, focused ability components, making the code more flexible, eliminating duplication, and allowing for easy creation of characters with arbitrary combinations of abilities.
