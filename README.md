@@ -175,3 +175,16 @@ The Principle of Least Astonishment states that a component of a system should b
 
 **Key Concept:**
 The Principle of Least Astonishment is violated when code behaves in ways that surprise or confuse users. In the violation example, functions and methods have misleading names, inconsistent parameter ordering, unexpected return values, and hidden side effects that modify data unexpectedly. The correct implementation follows established conventions with intuitive method names, consistent parameter ordering, predictable return values, and no surprising side effects, making the code more intuitive, easier to use correctly, and less prone to bugs caused by misunderstandings.
+
+### 14. Big Design Up Front (BDUF)
+
+The Big Design Up Front (BDUF) principle advocates for comprehensive planning and design before any implementation begins. It involves creating detailed specifications, architecture, and design documents upfront to guide the development process.
+
+**Location:** [big-design-up-front-principle](./big-design-up-front-principle)
+
+**Files:**
+- [correct-implementation.js](./big-design-up-front-principle/correct-implementation.js) - Shows a proper implementation of BDUF using a well-planned e-commerce system with clear architecture and interfaces defined upfront
+- [violation.js](./big-design-up-front-principle/violation.js) - Demonstrates a violation of BDUF with a system that evolves haphazardly without proper planning
+
+**Key Concept:**
+The BDUF principle is violated when development proceeds without adequate upfront planning and design. In the violation example, an e-commerce system grows organically with features added ad-hoc, resulting in duplicate code, inconsistent interfaces, inefficient data structures, and tightly coupled components. The correct implementation demonstrates a well-designed system with comprehensive domain models, clear service interfaces, dependency injection, proper error handling, and separation of concerns, making the code more maintainable, modular, and adaptable to change.
