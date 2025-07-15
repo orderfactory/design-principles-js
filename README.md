@@ -71,3 +71,16 @@ The Single Responsibility Principle states that a class should have only one rea
 
 **Key Concept:**
 The SRP is violated when a class takes on multiple responsibilities, giving it multiple reasons to change. In the violation example, a User class handles data management, validation, persistence, and reporting, making it difficult to maintain and test. The correct implementation separates these concerns into distinct classes, each with a single responsibility, making the code more modular, easier to understand, and simpler to maintain.
+
+### 6. You Ain't Gonna Need It (YAGNI)
+
+The YAGNI principle suggests that you shouldn't add functionality until it's actually needed. It's about avoiding speculative development and focusing only on current requirements.
+
+**Location:** [yagni-principle](./yagni-principle)
+
+**Files:**
+- [correct-implementation.js](./yagni-principle/correct-implementation.js) - Shows a proper implementation of YAGNI with a simple, focused solution that only implements what's currently needed
+- [violation.js](./yagni-principle/violation.js) - Demonstrates a violation of YAGNI with an over-engineered solution containing many speculative features
+
+**Key Concept:**
+The YAGNI principle is violated when developers implement features that aren't currently required, based on speculation about future needs. In the violation example, an authentication system is built with many speculative features like password reset, email verification, session management, and two-factor authentication, adding unnecessary complexity. The correct implementation focuses only on the current requirements (basic user registration and login), making the code simpler, faster to develop, and easier to maintain.
