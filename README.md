@@ -97,3 +97,16 @@ The DRY principle states that "Every piece of knowledge must have a single, unam
 
 **Key Concept:**
 The DRY principle is violated when the same piece of logic or knowledge is duplicated in multiple places. In the violation example, a shopping cart implementation repeats calculation logic for subtotal, tax, shipping, and discounts across multiple methods. The correct implementation centralizes each calculation in a single method and reuses these methods where needed, making the code more maintainable, less prone to errors, and easier to modify when requirements change.
+
+### 8. Keep It Simple, Stupid (KISS)
+
+The KISS principle states that most systems work best if they are kept simple rather than made complex. Simplicity should be a key goal in design, and unnecessary complexity should be avoided.
+
+**Location:** [kiss-principle](./kiss-principle)
+
+**Files:**
+- [correct-implementation.js](./kiss-principle/correct-implementation.js) - Shows a proper implementation of KISS with a simple, straightforward calculator
+- [violation.js](./kiss-principle/violation.js) - Demonstrates a violation of KISS with an over-engineered calculator that adds unnecessary complexity
+
+**Key Concept:**
+The KISS principle is violated when solutions are made more complex than necessary. In the violation example, a simple calculator is over-engineered with unnecessary abstractions, class hierarchies, and features that don't add value. The correct implementation solves the same problem with a simple, straightforward approach that's easy to understand and maintain, demonstrating that the simplest solution is often the best.
