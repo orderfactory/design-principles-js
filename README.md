@@ -32,3 +32,16 @@ The Open/Closed Principle states that software entities (classes, modules, funct
 
 **Key Concept:**
 The OCP is violated when adding new functionality requires modifying existing code. In the violation example, adding a new customer type requires modifying the DiscountCalculator class. The correct implementation uses the strategy pattern to allow adding new customer types without modifying existing code.
+
+### 3. Dependency Inversion Principle (DIP)
+
+The Dependency Inversion Principle states that high-level modules should not depend on low-level modules; both should depend on abstractions. Abstractions should not depend on details; details should depend on abstractions.
+
+**Location:** [dependency-inversion-principle](./dependency-inversion-principle)
+
+**Files:**
+- [correct-implementation.js](./dependency-inversion-principle/correct-implementation.js) - Shows a proper implementation of DIP using a notification system with dependency injection
+- [violation.js](./dependency-inversion-principle/violation.js) - Demonstrates a violation of DIP with a notification service that directly depends on concrete implementations
+
+**Key Concept:**
+The DIP is violated when high-level modules directly depend on low-level modules instead of abstractions. In the violation example, the NotificationService directly instantiates and uses concrete implementations, creating tight coupling. The correct implementation uses dependency injection and abstractions to decouple the high-level module from the specific implementations.
