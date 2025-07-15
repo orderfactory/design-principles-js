@@ -396,3 +396,16 @@ The Least Common Mechanism Principle states that we should minimize the amount o
 
 **Key Concept:**
 The Least Common Mechanism Principle is violated when a system uses a single, general-purpose mechanism that is shared across different components or user types. In the violation example, a user management system implements a single User class with complex conditional logic to handle different user types (admin, regular, guest), leading to increased complexity, reduced security, and maintenance issues. The correct implementation provides specialized classes for each user type, each with its own tailored authentication mechanism and functionality, making the code more maintainable, secure, and easier to extend.
+
+### 31. Idempotency Principle (I)
+
+The Idempotency Principle states that an operation can be applied multiple times without changing the result beyond the initial application. In other words, if f(x) = f(f(x)), then f is idempotent. This is particularly important in distributed systems, APIs, and error recovery scenarios where operations might be repeated.
+
+**Location:** [idempotency-principle](./idempotency-principle)
+
+**Files:**
+- [correct-implementation.js](./idempotency-principle/correct-implementation.js) - Shows a proper implementation of idempotent operations in a user profile management system
+- [violation.js](./idempotency-principle/violation.js) - Demonstrates a violation of idempotency with operations that produce different results when called multiple times
+
+**Key Concept:**
+The Idempotency Principle is violated when operations produce different results when called multiple times with the same input. In the violation example, a user profile management system implements non-idempotent operations that change the result with each call, such as generating new IDs, accumulating values, toggling states, and adding duplicate entries. This leads to unpredictable behavior when operations are retried, potential data corruption, and difficulties in error handling. The correct implementation ensures that operations can be safely repeated without unintended side effects, making the system more reliable, especially in distributed environments where network failures might cause operations to be retried.
