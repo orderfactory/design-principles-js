@@ -188,3 +188,16 @@ The Big Design Up Front (BDUF) principle advocates for comprehensive planning an
 
 **Key Concept:**
 The BDUF principle is violated when development proceeds without adequate upfront planning and design. In the violation example, an e-commerce system grows organically with features added ad-hoc, resulting in duplicate code, inconsistent interfaces, inefficient data structures, and tightly coupled components. The correct implementation demonstrates a well-designed system with comprehensive domain models, clear service interfaces, dependency injection, proper error handling, and separation of concerns, making the code more maintainable, modular, and adaptable to change.
+
+### 15. Dynamic Systems Development Method (DSDM)
+
+The Dynamic Systems Development Method (DSDM) is an agile project delivery framework that focuses on delivering the right solution at the right time. It emphasizes active user involvement, empowered teams, frequent delivery, integrated testing, and stakeholder collaboration.
+
+**Location:** [dynamic-systems-development-method](./dynamic-systems-development-method)
+
+**Files:**
+- [correct-implementation.js](./dynamic-systems-development-method/correct-implementation.js) - Shows a proper implementation of DSDM using a project management system with MoSCoW prioritization, timeboxed development, and phased delivery
+- [violation.js](./dynamic-systems-development-method/violation.js) - Demonstrates a violation of DSDM with a project that lacks prioritization, timeboxing, and proper stakeholder involvement
+
+**Key Concept:**
+The DSDM principle is violated when projects lack proper prioritization, timeboxing, and stakeholder involvement. In the violation example, a project proceeds without MoSCoW prioritization, leading to work on non-essential features before core functionality, and without timeboxed iterations, resulting in scattered focus and poor time management. The correct implementation demonstrates a well-structured project with clear phases (Feasibility, Foundations, Evolutionary Development, Deployment), MoSCoW prioritization (Must have, Should have, Could have, Won't have), timeboxed development, and active stakeholder involvement, ensuring that the most critical functionality is always prioritized and delivered, even if time constraints require some less critical features to be deferred.
