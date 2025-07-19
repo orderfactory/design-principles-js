@@ -189,18 +189,18 @@ The Big Design Up Front (BDUF) principle advocates for comprehensive planning an
 **Key Concept:**
 The BDUF principle is violated when development proceeds without adequate upfront planning and design. In the violation example, an e-commerce system grows organically with features added ad-hoc, resulting in duplicate code, inconsistent interfaces, inefficient data structures, and tightly coupled components. The correct implementation demonstrates a well-designed system with comprehensive domain models, clear service interfaces, dependency injection, proper error handling, and separation of concerns, making the code more maintainable, modular, and adaptable to change.
 
-### 15. Dynamic Systems Development Method (DSDM)
+### 15. Write Everything Twice (WET) Principle
 
-The Dynamic Systems Development Method (DSDM) is an agile project delivery framework that focuses on delivering the right solution at the right time. It emphasizes active user involvement, empowered teams, frequent delivery, integrated testing, and stakeholder collaboration.
+The Write Everything Twice (WET) principle suggests that in some cases, duplicating code can be more beneficial than trying to abstract it into a shared implementation, especially when the duplicated code serves different purposes or might evolve differently over time.
 
-**Location:** [dynamic-systems-development-method](./dynamic-systems-development-method)
+**Location:** [write-everything-twice-principle](./write-everything-twice-principle)
 
 **Files:**
-- [correct-implementation.js](./dynamic-systems-development-method/correct-implementation.js) - Shows a proper implementation of DSDM using a project management system with MoSCoW prioritization, timeboxed development, and phased delivery
-- [violation.js](./dynamic-systems-development-method/violation.js) - Demonstrates a violation of DSDM with a project that lacks prioritization, timeboxing, and proper stakeholder involvement
+- [correct-implementation.js](./write-everything-twice-principle/correct-implementation.js) - Shows a proper implementation of WET using a user management system with separate validation for registration and profile updates
+- [violation.js](./write-everything-twice-principle/violation.js) - Demonstrates a violation of WET with an overly abstract validation system that tries to avoid duplication but creates complexity
 
 **Key Concept:**
-The DSDM principle is violated when projects lack proper prioritization, timeboxing, and stakeholder involvement. In the violation example, a project proceeds without MoSCoW prioritization, leading to work on non-essential features before core functionality, and without timeboxed iterations, resulting in scattered focus and poor time management. The correct implementation demonstrates a well-structured project with clear phases (Feasibility, Foundations, Evolutionary Development, Deployment), MoSCoW prioritization (Must have, Should have, Could have, Won't have), timeboxed development, and active stakeholder involvement, ensuring that the most critical functionality is always prioritized and delivered, even if time constraints require some less critical features to be deferred.
+The WET principle is violated when code uses excessive abstraction to avoid duplication (DRY), resulting in complex, hard-to-maintain systems. In the violation example, a user management system uses a single, overly configurable validator for all operations, leading to workarounds, hidden business logic, and reduced clarity. The correct implementation deliberately duplicates validation logic for registration and profile updates, allowing each validator to be tailored to its specific use case and evolve independently. This intentional duplication improves clarity, maintainability, and flexibility, demonstrating that sometimes writing code twice is better than forcing it into a single abstraction.
 
 ### 16. Fail Fast Principle (FF)
 
