@@ -5,55 +5,119 @@
  * "Clients should not be forced to depend upon interfaces that they do not use."
  *
  * In this example, we demonstrate ISP by creating specific, focused interfaces
- * for different types of devices rather than one large, general-purpose interface.
+ * for different capabilities rather than one large, general-purpose interface.
  */
 
 // Instead of one large interface, we define smaller, more specific interfaces
 // Each interface represents a specific capability
 
 // Document printing capability
-class Printer {
+class IPrintable {
   print(document) {
     throw new Error('Method print() must be implemented');
   }
 }
 
 // Document scanning capability
-class Scanner {
+class IScannable {
   scan() {
     throw new Error('Method scan() must be implemented');
   }
 }
 
 // Fax sending capability
-class FaxMachine {
+class IFaxable {
   fax(document) {
     throw new Error('Method fax() must be implemented');
   }
 }
 
+// Document copying capability
+class ICopyable {
+  copy() {
+    throw new Error('Method copy() must be implemented');
+  }
+}
+
 // Devices implement only the interfaces they need
 
-// A simple printer only implements the Printer interface
-class SimplePrinter extends Printer {
+// A simple printer only implements the printing interface
+class SimplePrinter extends IPrintable {
   print(document) {
     console.log(`Printing document: ${document}`);
   }
 }
 
-// A scanner only implements the Scanner interface
-class SimpleScanner extends Scanner {
+// A scanner only implements the scanning interface
+class SimpleScanner extends IScannable {
   scan() {
     console.log('Scanning document...');
     return 'Scanned content';
   }
 }
 
-// A multifunction device implements multiple interfaces
-class MultifunctionPrinter extends Printer {
-  print(document) {
-    console.log(`Printing document: ${document}`);
+// A fax machine only implements the fax interface
+class SimpleFaxMachine extends IFaxable {
+  fax(document) {
+    console.log(`Faxing document: ${document}`);
   }
+}
+
+// A multifunction device that needs multiple capabilities
+// Uses multiple inheritance pattern (mixin) to implement multiple interfaces
+class MultifunctionDevice {
+  constructor() {
+    // Mixin the required interfaces
+    Object.assign(this, new IPrintable());
+    Object.assign(this, new IScannable());
+    Object.assign(this, new IFaxable());
+    Object.assign(this, new ICopyable());
+  }
+
+  print(document) {
+    console.log(`[Multifunction] Printing document: ${document}`);
+  }
+
+  scan() {
+    console.log('[Multifunction] Scanning document...');
+    return 'Scanned content from multifunction device';
+  }
+
+  fax(document) {
+    console.log(`[Multifunction] Faxing document: ${document}`);
+  }
+
+  copy() {
+    console.log('[Multifunction] Copying document...');
+    const scannedContent = this.scan();
+    this.print(scannedContent);
+  }
+}
+
+// Alternative approach: A printer-scanner combo that only implements what it needs
+class PrinterScannerCombo {
+  constructor() {
+    Object.assign(this, new IPrintable());
+    Object.assign(this, new IScannable());
+    Object.assign(this, new ICopyable());
+  }
+
+  print(document) {
+    console.log(`[Combo] Printing document: ${document}`);
+  }
+
+  scan() {
+    console.log('[Combo] Scanning document...');
+    return 'Scanned content from combo device';
+  }
+
+  copy() {
+    console.log('[Combo] Copying document...');
+    const scannedContent = this.scan();
+    this.print(scannedContent);
+  }
+
+  // Note: This device doesn't implement fax capability
 }
 
 // Using composition to create a device with multiple capabilities
@@ -90,41 +154,72 @@ class OfficeStation {
   }
 }
 
-// Usage examples
+// Usage examples demonstrating ISP compliance
 
-// Create a simple printer that only prints
+console.log('=== ISP Correct Implementation Examples ===\n');
+
+// Create devices that implement only what they need
+console.log('1. Simple devices with single capabilities:');
 const simplePrinter = new SimplePrinter();
 simplePrinter.print('Annual Report');
 
-// Create a simple scanner that only scans
 const simpleScanner = new SimpleScanner();
 const scannedContent = simpleScanner.scan();
-console.log(`Scanned content: ${scannedContent}`);
+console.log(`Result: ${scannedContent}\n`);
 
-// Create a multifunction printer
-const multifunctionPrinter = new MultifunctionPrinter();
-multifunctionPrinter.print('Meeting Notes');
+const simpleFax = new SimpleFaxMachine();
+simpleFax.fax('Contract');
 
+console.log('\n2. Multifunction device implementing multiple interfaces:');
+const multifunctionDevice = new MultifunctionDevice();
+multifunctionDevice.print('Meeting Notes');
+multifunctionDevice.scan();
+multifunctionDevice.fax('Important Document');
+multifunctionDevice.copy();
+
+console.log('\n3. Printer-Scanner combo (no fax capability):');
+const printerScannerCombo = new PrinterScannerCombo();
+printerScannerCombo.print('Project Plan');
+printerScannerCombo.scan();
+printerScannerCombo.copy();
+// Note: printerScannerCombo.fax() would cause an error since it doesn't implement IFaxable
+
+console.log('\n4. Composition approach with OfficeStation:');
 // Create a full office station with all capabilities
 const fullOfficeStation = new OfficeStation(
   new SimplePrinter(),
   new SimpleScanner(),
-  new FaxMachine() // This would throw an error if used since we haven't implemented it
+  new SimpleFaxMachine()
 );
 
-// Create a printer-scanner combo (no fax)
-const printerScannerCombo = new OfficeStation(
+fullOfficeStation.print('Budget Report');
+fullOfficeStation.scan();
+fullOfficeStation.fax('Proposal');
+
+// Create a printer-scanner only station (no fax)
+const basicOfficeStation = new OfficeStation(
   new SimplePrinter(),
   new SimpleScanner(),
   null // No fax capability
 );
 
-printerScannerCombo.print('Contract');
-printerScannerCombo.scan();
-printerScannerCombo.fax('Contract'); // Will show "Faxing not supported"
+console.log('\n5. Office station without fax capability:');
+basicOfficeStation.print('Invoice');
+basicOfficeStation.scan();
+basicOfficeStation.fax('Document'); // Will show "Faxing not supported"
+
+console.log('\n=== ISP Benefits Demonstrated ===');
+console.log('✓ Interfaces are segregated by specific capabilities');
+console.log('✓ Classes implement only the interfaces they actually need');
+console.log('✓ No forced implementation of unused methods');
+console.log('✓ Changes to one interface don\'t affect unrelated classes');
+console.log('✓ Composition allows flexible capability combinations');
+console.log('✓ Code is more maintainable and follows single responsibility');
 
 // This demonstrates ISP because:
-// 1. We have segregated the interfaces based on functionality
-// 2. Clients only need to implement the interfaces they actually use
-// 3. Changes to one capability don't affect classes that don't use that capability
-// 4. We can compose objects with exactly the capabilities they need
+// 1. We have segregated the interfaces based on specific functionality (IPrintable, IScannable, IFaxable, ICopyable)
+// 2. Each class implements only the interfaces it actually needs and uses
+// 3. No class is forced to implement methods it doesn't support
+// 4. Changes to one interface don't affect classes that don't use that capability
+// 5. We can compose objects with exactly the capabilities they need
+// 6. The code is more maintainable, testable, and follows the single responsibility principle
