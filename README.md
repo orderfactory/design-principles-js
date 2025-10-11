@@ -409,3 +409,19 @@ The Idempotency Principle states that an operation can be applied multiple times
 
 **Key Concept:**
 The Idempotency Principle is violated when operations produce different results when called multiple times with the same input. In the violation example, a user profile management system implements non-idempotent operations that change the result with each call, such as generating new IDs, accumulating values, toggling states, and adding duplicate entries. This leads to unpredictable behavior when operations are retried, potential data corruption, and difficulties in error handling. The correct implementation ensures that operations can be safely repeated without unintended side effects, making the system more reliable, especially in distributed environments where network failures might cause operations to be retried.
+
+### 32. Graceful Degradation Principle (GD)
+
+The Graceful Degradation Principle states that systems should continue to provide core functionality even when non-critical components fail, rather than completely breaking. This principle emphasizes distinguishing between essential and optional features, implementing fallback mechanisms, and ensuring that the failure of enhancement features doesn't prevent access to basic functionality.
+
+**Contrast with Fail-Fast:**
+While "fail-fast" systems immediately stop on error to prevent data corruption, "graceful degradation" prioritizes maintaining partial functionality for end users. The focus of graceful degradation is user perception: ensuring that even in partial failure, the system feels responsive and trustworthy, supporting business continuity by keeping core services operational.
+
+**Location:** [graceful-degradation-principle](./graceful-degradation-principle)
+
+**Files:**
+- [correct-implementation.js](./graceful-degradation-principle/correct-implementation.js) - Shows a proper implementation of graceful degradation using an e-commerce system that continues working even when analytics, cache, or recommendation services fail
+- [violation.js](./graceful-degradation-principle/violation.js) - Demonstrates a violation of graceful degradation where the system completely fails when any dependency is unavailable
+
+**Key Concept:**
+A system violates this principle when all dependencies are treated as critical, causing complete failure when any component goes down. Proper design isolates optional features (e.g., analytics, caching, recommendations), allowing core operations to continue through controlled fallbacks. In the violation example, an e-commerce system fails entirely when any service is unavailable, even though core product data remains accessible. The correct implementation wraps non-critical operations in try-catch blocks with appropriate fallbacks, ensuring users can access essential functionality while optional services degrade gracefully. This approach improves system resilience, enhances user experience during partial outages, and maintains business continuity in real-world conditions where dependencies may be temporarily unavailable. Implementing graceful degradation is not just a coding pattern—it's a mindset of building software that respects real-world imperfection.
