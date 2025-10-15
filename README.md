@@ -425,3 +425,40 @@ While "fail-fast" systems immediately stop on error to prevent data corruption, 
 
 **Key Concept:**
 A system violates this principle when all dependencies are treated as critical, causing complete failure when any component goes down. Proper design isolates optional features (e.g., analytics, caching, recommendations), allowing core operations to continue through controlled fallbacks. In the violation example, an e-commerce system fails entirely when any service is unavailable, even though core product data remains accessible. The correct implementation wraps non-critical operations in try-catch blocks with appropriate fallbacks, ensuring users can access essential functionality while optional services degrade gracefully. This approach improves system resilience, enhances user experience during partial outages, and maintains business continuity in real-world conditions where dependencies may be temporarily unavailable. Implementing graceful degradation is not just a coding pattern—it's a mindset of building software that respects real-world imperfection.
+
+### 33. Observability-First Principle (OFP)
+
+Definition:
+Design software so that its internal behavior can be accurately understood from its external signals—logs, metrics, and traces—at any time and under any conditions.
+
+Description:
+Observability-First means treating introspection as a first-class design goal, not an afterthought. Every component should emit structured, contextual, and consistent telemetry:
+- Logs should use structured formats (JSON preferred) with correlation or trace IDs propagated end-to-end.
+- Metrics should expose operation timings, success/failure counts, and key resource indicators. Where feasible, instrument SLIs/SLOs to make reliability goals explicit and measurable.
+- Traces should link events across services to reveal causal chains and performance bottlenecks.
+Together, these enable developers and operators to answer not only “what happened?” but “why did it happen?”—even without direct code access.
+
+Implementing OFP improves diagnosability, accelerates incident resolution (reducing MTTR), and allows scalable, resilient operations with confidence.
+
+**Location:** [observability-first-principle](./observability-first-principle)
+
+**Files:**
+- [correct-implementation.js](./observability-first-principle/correct-implementation.js) - Demonstrates OFP with structured JSON logs, correlation ID propagation, normalized error codes, and simple metrics/timers across services
+- [violation.js](./observability-first-principle/violation.js) - Shows a lack of observability with ad-hoc console logs, no correlation IDs, vague errors, and no metrics
+
+**Key Concept:**
+The principle is violated when:
+- Logs are ad-hoc, unstructured, or lack contextual identifiers.
+- Errors are generic or swallowed.
+- Metrics are absent or inconsistent across services.
+- Correlation/trace propagation is missing—making incidents opaque and unreproducible.
+
+The principle is upheld when:
+- Every operation emits structured, context-rich events with stable schemas.
+- Errors carry diagnostic codes and actionable context.
+- Correlation/trace IDs are propagated across boundaries.
+- Metrics expose key performance and reliability signals.
+- Observability is verified as part of CI/CD and operational readiness.
+- Observability is part of the system’s design contract—software isn’t “done” unless it can explain itself.
+
+By avoiding unstructured logs and missing correlation IDs, teams prevent real-world pain during multi-service debugging under pressure—issues that can otherwise multiply MTTR by hours.
