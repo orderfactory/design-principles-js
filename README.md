@@ -462,3 +462,48 @@ The principle is upheld when:
 - Observability is part of the system’s design contract—software isn’t “done” unless it can explain itself.
 
 By avoiding unstructured logs and missing correlation IDs, teams prevent real-world pain during multi-service debugging under pressure—issues that can otherwise multiply MTTR by hours.
+
+
+### 34. Backpressure-First Principle (BFP)
+
+Definition:
+Safeguard stability before maximizing throughput: design software so it never accepts more work than it can safely complete. Apply backpressure at every boundary using bounded buffers, rate limits, maximum concurrency, timeouts, and use explicit shedding only as a last resort—so overload is controlled and visible instead of hidden in unbounded queues.
+
+Description:
+Backpressure-First is a mindset, not just a bag of mechanisms. Shift the default from “optimize throughput” to “protect stability.” Like a dam controlling water flow, release only what downstream can safely handle and let the rest wait or spill in a controlled, intentional way.
+
+To practice this, components should:
+- Bound all queues and caches. If a buffer is full, fail fast with a clear, actionable signal.
+- Limit ingress using rate limiting or admission control (e.g., token bucket, leaky bucket).
+- Cap concurrency to protect critical resources (thread pools, DB connections).
+- Use timeouts and cancellation to prevent long-tail latencies from starving the system.
+- Propagate overload signals upstream (429/503-like responses) so callers can retry, back off, or degrade.
+
+Backpressure vs. Shedding:
+- Backpressure asks producers to slow down (queue limits, 429 with Retry-After, windowed quotas, connection-level flow control).
+- Shedding drops work that cannot be safely accepted (503, dropping lowest-priority or non-critical tasks).
+- Preferred order: try backpressure first; when callers can’t or won’t slow down, shed explicitly and predictably. A simple decision rule: “If queue is full or tokens exhausted, reject quickly with a clear signal.”
+
+Team practices (organizational alignment):
+- Define SLOs and capacity envelopes; protect error budgets under load.
+- Load test regularly (burst and soak) to validate limits, timeouts, and shedding paths.
+- Make overload explicit in APIs/contracts: return 429/503 with machine-parseable bodies and Retry-After; document client backoff expectations.
+- Tier traffic and features: deprioritize or degrade non-critical work first; keep core paths fast.
+- Maintain runbooks and circuit-breaker policies so operators know when to tighten limits or shed more aggressively.
+
+Observability tie-in:
+Backpressure works only if signals are visible and acted upon. Instrument and dashboard:
+- Queue depth, token bucket levels, active concurrency, wait times, and timeout counts.
+- Overload responses by type (429 vs 503) and drop reasons.
+- Tail-latency percentiles for protected resources.
+- Trace annotations when requests are throttled, queued, or shed.
+See also: 33. Observability-First Principle (OFP) for telemetry practices that make these signals reliable.
+
+**Location:** [backpressure-first-principle](./backpressure-first-principle)
+
+**Files:**
+- [correct-implementation.js](./backpressure-first-principle/correct-implementation.js) - Shows proper backpressure with a bounded queue, token-bucket ingress limiter, max concurrency, timeouts, and explicit load shedding
+- [violation.js](./backpressure-first-principle/violation.js) - Demonstrates unbounded buffering and uncontrolled concurrency leading to memory growth and collapse under load
+
+**Key Concept:**
+The principle is violated when a system accepts work unconditionally, buffers it in unbounded queues, spawns unlimited asynchronous tasks, and omits timeouts—causing memory bloat, long-tail latency, and cascading failure when load spikes. The correct implementation applies backpressure at the ingress (rate limiting), within the service (bounded queues, capped concurrency), and at the egress (timeouts and cancellation). Prefer backpressure first (slow callers with clear signals), then explicit shedding when necessary, and make both observable (metrics, logs, traces) so callers and operators can react. This makes services more scalable, robust, maintainable, and easier to operate in real-world conditions where load is bursty and failures happen.
