@@ -507,3 +507,101 @@ See also: 33. Observability-First Principle (OFP) for telemetry practices that m
 
 **Key Concept:**
 The principle is violated when a system accepts work unconditionally, buffers it in unbounded queues, spawns unlimited asynchronous tasks, and omits timeouts—causing memory bloat, long-tail latency, and cascading failure when load spikes. The correct implementation applies backpressure at the ingress (rate limiting), within the service (bounded queues, capped concurrency), and at the egress (timeouts and cancellation). Prefer backpressure first (slow callers with clear signals), then explicit shedding when necessary, and make both observable (metrics, logs, traces) so callers and operators can react. This makes services more scalable, robust, maintainable, and easier to operate in real-world conditions where load is bursty and failures happen.
+
+### 35. Boundary Defense Principle (BDP)
+
+Definition:
+Treat every interface between subsystems as a trust boundary—whether external (user input, APIs, files) or internal (microservices, modules, layers). All data crossing any boundary must be validated, sanitized, and normalized at the point of crossing, with each component treating incoming data as untrusted regardless of its source.
+
+Description:
+The Boundary Defense Principle embodies zero-trust architecture thinking: no component assumes data from another is safe, well-formed, or authorized. Boundaries exist not just at the system edge but between every subsystem—microservices communicating via message queues, modules exchanging objects, or layers reading from databases. Each boundary is a potential attack vector or corruption point. By validating at every interface, systems achieve defense-in-depth: a breach or bug in one component doesn't cascade throughout the architecture.
+
+Key practices (organized by concern):
+
+**Validation** (Ensure correctness):
+- Check types, ranges, formats, and business invariants explicitly at every boundary
+- Validate even "trusted" sources—databases can be corrupted, internal services can be compromised
+- Fail explicitly when validation fails (reject rather than silently "fix")
+
+**Sanitization** (Neutralize dangers):
+- Remove or escape characters that enable injection attacks (SQL, command, XSS, prototype pollution)
+- Use parameterized queries and prepared statements for all database operations
+- Apply context-appropriate encoding (HTML escaping for web output, shell escaping for commands)
+
+**Normalization** (Align representation):
+- Convert external formats to consistent internal representations (trim whitespace, normalize case, standardize date/number formats)
+- Canonicalize paths, URLs, and identifiers to prevent bypasses via alternate encodings
+
+**Cross-cutting defensive patterns**:
+- Never trust client-provided permissions—derive roles/permissions server-side from authenticated identity
+- Distinguish error feedback: descriptive for developers (internal logs), generic for external consumers (prevent reconnaissance)
+- Log validation failures securely for investigation without exposing system internals
+
+Progressive hardening:
+Rather than "defense in depth" as static layers, think of **progressive hardening**—each layer re-validates assumptions and narrows trust further:
+- **API layer**: Validates HTTP structure, authentication, authorization
+- **Service layer**: Re-validates message/event payloads even from internal services (zero-trust within the system)
+- **Data layer**: Validates integrity of data read from stores, catching corruption or schema drift
+- **Command layer**: Final validation before irreversible operations (payments, file deletion, privilege changes)
+
+Data can be corrupted in transit, at rest, or between components. Validation shouldn't happen "once at the edge"—each boundary reasserts invariants independently.
+
+Tradeoffs and practical considerations:
+
+**Performance overhead**:
+Re-validating at every layer has a cost—parsing, type checking, and sanitization consume CPU and increase latency. For high-throughput or latency-critical paths, consider:
+- Validate exhaustively at the system edge (user-facing APIs), then use strong typing and internal contracts for trusted internal components
+- Cache validation results when processing the same data multiple times
+- Profile hot paths and optimize validation logic (e.g., compiled regex, lookup tables)
+- Accept the overhead for security-critical operations (authentication, payments, privilege changes) but potentially relax for read-only, non-sensitive queries
+
+Rule of thumb: The closer to untrusted sources and the more security-sensitive the operation, the more validation overhead is justified.
+
+**Development velocity**:
+Strict validation everywhere can slow initial development—every new field, every new service requires validation code. Pragmatic approaches:
+- Use schema validation libraries (Joi, Zod, JSON Schema) to generate validators from type definitions
+- Build reusable validation utilities for common patterns (email, phone, currency)
+- Track "validation debt" like technical debt—mark areas where validation is deferred for prototyping but must be hardened before production
+- Enforce validation in CI/CD: fail builds if public APIs lack input validation tests
+
+The upfront cost pays dividends: validation-first design catches bugs early and prevents emergency security patches later.
+
+**False positives and over-validation**:
+Overly strict validation can reject legitimate edge cases, frustrating users and reducing system utility. Balance strictness with usability:
+- Monitor rejection rates and reasons—high rejection rates may indicate rules that are too strict or poorly communicated
+- Version validation rules explicitly, allowing gradual tightening without breaking existing clients
+- Provide clear, actionable error messages so users understand why input was rejected and how to fix it
+- Distinguish between "hard" invariants (type safety, injection prevention) and "soft" business rules (string length limits)—be strict on security, pragmatic on convenience
+
+Example: An email validator that rejects rare-but-valid RFC-compliant addresses (like `"name with spaces"@example.com`) is overly strict. Validate format loosely, sanitize strictly.
+
+**Contextual validation**:
+What counts as "valid" often depends on context—a product ID valid in one microservice may be invalid in another. Make validation rules explicit and context-aware:
+- Define validation schemas per API/service, not globally—different boundaries have different invariants
+- Document assumptions: "This service accepts ISO-8601 timestamps in UTC only"
+- Use type systems to encode context: `EmailAddress`, `SanitizedHTML`, `UnvalidatedUserInput` as distinct types
+- When validation rules change (new field, stricter format), version APIs and provide migration paths
+
+**When to relax validation** (carefully):
+In some internal, tightly-coupled systems where components are deployed atomically and share a type system, you might validate once and trust internal boundaries:
+- Monolithic applications with strong typing (TypeScript, Rust) can validate at public APIs and rely on type safety internally
+- Batch processing pipelines that validate on ingestion can skip re-validation at each stage if data is immutable
+- Internal admin tools operating on validated data stores may trust database constraints
+
+However, even these cases benefit from assertions to catch bugs. Relaxing validation is an optimization—measure before optimizing, and never relax validation on external-facing or security-critical boundaries.
+
+Contrast with related principles:
+- **Design by Contract**: DbC assumes parties honor contracts within trusted code boundaries. Boundary Defense assumes no boundary is truly trusted—contracts must be enforced, not assumed.
+- **Fail Fast**: Broader principle about catching errors early anywhere. Boundary Defense is a specific application: catch invalid data at interfaces before it propagates.
+- **Postel's Robustness Principle**: "Be liberal in what you accept, conservative in what you send." Boundary Defense **deliberately reverses** this for security-critical paths—favoring strict validation over interoperability tolerance. The tradeoff: Postel optimizes for flexibility and resilience against benign variance; Boundary Defense optimizes against malicious or corrupted input. In modern security contexts, precision trumps permissiveness.
+
+**Location:** [boundary-defense-principle](./boundary-defense-principle)
+
+**Files:**
+- [correct-implementation.js](./boundary-defense-principle/correct-implementation.js) - Shows proper validation, sanitization, and normalization at every system boundary (API, database, external services, files, messages)
+- [violation.js](./boundary-defense-principle/violation.js) - Demonstrates vulnerabilities when data is trusted across boundaries: SQL injection, command injection, XSS, prototype pollution, privilege escalation, and data corruption
+
+**Key Concept:**
+Violation: Trusting data across boundaries without validation enables injection attacks (SQL, command, XSS), prototype pollution, privilege escalation, and data corruption. The violation example accepts raw input directly, allowing malicious payloads to compromise the system.
+
+Correct: Every boundary (API, database, file, service-to-service) validates types/ranges/formats, sanitizes dangerous characters, normalizes representations, and derives security-sensitive fields server-side. Progressive hardening means each layer re-validates independently—one breach doesn't cascade. This zero-trust approach prevents attacks, ensures data integrity, and makes systems resilient to both malicious actors and buggy components.
