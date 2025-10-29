@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates various programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 33 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -176,20 +176,9 @@ The Principle of Least Astonishment states that a component of a system should b
 **Key Concept:**
 The Principle of Least Astonishment is violated when code behaves in ways that surprise or confuse users. In the violation example, functions and methods have misleading names, inconsistent parameter ordering, unexpected return values, and hidden side effects that modify data unexpectedly. The correct implementation follows established conventions with intuitive method names, consistent parameter ordering, predictable return values, and no surprising side effects, making the code more intuitive, easier to use correctly, and less prone to bugs caused by misunderstandings.
 
-### 14. Big Design Up Front (BDUF)
+### 14. Write Everything Twice (WET) Principle
 
-The Big Design Up Front (BDUF) principle advocates for comprehensive planning and design before any implementation begins. It involves creating detailed specifications, architecture, and design documents upfront to guide the development process.
-
-**Location:** [big-design-up-front-principle](./big-design-up-front-principle)
-
-**Files:**
-- [correct-implementation.js](./big-design-up-front-principle/correct-implementation.js) - Shows a proper implementation of BDUF using a well-planned e-commerce system with clear architecture and interfaces defined upfront
-- [violation.js](./big-design-up-front-principle/violation.js) - Demonstrates a violation of BDUF with a system that evolves haphazardly without proper planning
-
-**Key Concept:**
-The BDUF principle is violated when development proceeds without adequate upfront planning and design. In the violation example, an e-commerce system grows organically with features added ad-hoc, resulting in duplicate code, inconsistent interfaces, inefficient data structures, and tightly coupled components. The correct implementation demonstrates a well-designed system with comprehensive domain models, clear service interfaces, dependency injection, proper error handling, and separation of concerns, making the code more maintainable, modular, and adaptable to change.
-
-### 15. Write Everything Twice (WET) Principle
+**⚠️ IMPORTANT:** This is NOT a blanket permission to duplicate code. DRY (Don't Repeat Yourself) should still be your default approach. Only apply WET when duplication is genuinely more maintainable than abstraction, such as when code serves fundamentally different purposes or will evolve independently.
 
 The Write Everything Twice (WET) principle suggests that in some cases, duplicating code can be more beneficial than trying to abstract it into a shared implementation, especially when the duplicated code serves different purposes or might evolve differently over time.
 
@@ -202,7 +191,9 @@ The Write Everything Twice (WET) principle suggests that in some cases, duplicat
 **Key Concept:**
 The WET principle is violated when code uses excessive abstraction to avoid duplication (DRY), resulting in complex, hard-to-maintain systems. In the violation example, a user management system uses a single, overly configurable validator for all operations, leading to workarounds, hidden business logic, and reduced clarity. The correct implementation deliberately duplicates validation logic for registration and profile updates, allowing each validator to be tailored to its specific use case and evolve independently. This intentional duplication improves clarity, maintainability, and flexibility, demonstrating that sometimes writing code twice is better than forcing it into a single abstraction.
 
-### 16. Fail Fast Principle (FF)
+**When to Apply WET:** Only use when (1) code serves fundamentally different purposes, (2) pieces will evolve independently, (3) abstraction would be more complex than duplication, or (4) duplication is far cheaper than the wrong abstraction. Use sparingly—DRY remains the default.
+
+### 15. Fail Fast Principle (FF)
 
 The Fail Fast Principle suggests that a system should detect and report errors as early as possible rather than allowing them to propagate. This helps identify issues quickly, makes debugging easier, and prevents cascading failures.
 
@@ -215,7 +206,7 @@ The Fail Fast Principle suggests that a system should detect and report errors a
 **Key Concept:**
 The Fail Fast principle is violated when a system delays validation, allows invalid data to propagate through the system, or silently handles errors without proper reporting. In the violation example, a user registration system processes data before validating it, collects errors instead of throwing them immediately, and allows processing to continue with invalid data, making it harder to trace the source of problems. The correct implementation validates all inputs immediately before proceeding, throws specific errors as soon as problems are detected, and prevents invalid data from propagating through the system, making debugging easier and preventing cascading failures.
 
-### 17. Occam's Razor Principle (OR)
+### 16. Occam's Razor Principle (OR)
 
 The Occam's Razor Principle states that "entities should not be multiplied without necessity" or more simply, "the simplest solution is usually the best one." In programming, this means choosing the simplest solution that meets the requirements, avoiding unnecessary complexity, and not adding features or abstractions unless they're needed.
 
@@ -228,7 +219,7 @@ The Occam's Razor Principle states that "entities should not be multiplied witho
 **Key Concept:**
 The Occam's Razor principle is violated when solutions are made more complex than necessary, with unnecessary abstractions, features, or patterns that don't provide real benefits for the current requirements. In the violation example, a simple text formatter is over-engineered with class hierarchies, factory patterns, caching mechanisms, and analytics features that aren't needed. The correct implementation solves the same problem with a simple, straightforward approach that's easy to understand and maintain, demonstrating that the simplest solution that meets the requirements is usually the best one.
 
-### 18. Separation of Concerns Principle (SoC)
+### 17. Separation of Concerns Principle (SoC)
 
 The Separation of Concerns principle states that a program should be divided into distinct sections, where each section addresses a separate concern. A concern is a set of information that affects the code of a computer program. This principle improves maintainability, reusability, and testability by ensuring that different aspects of the application are independent of each other.
 
@@ -241,7 +232,7 @@ The Separation of Concerns principle states that a program should be divided int
 **Key Concept:**
 The Separation of Concerns principle is violated when different concerns (like data storage, business logic, and presentation) are mixed together in the same components. In the violation example, a monolithic UserManager class handles data structure, storage, business logic, presentation, and even email functionality, making the code difficult to understand, test, and maintain. The correct implementation separates these concerns into distinct classes (User, UserRepository, UserService, and UserView), each with a single responsibility, making the code more modular, easier to understand, and simpler to maintain.
 
-### 19. High Cohesion and Low Coupling Principle (HCLC)
+### 18. High Cohesion and Low Coupling Principle (HCLC)
 
 The High Cohesion and Low Coupling principle suggests that components should have high cohesion (focused on a single responsibility) and low coupling (minimal dependencies on other components). This creates more maintainable, reusable, and testable code by ensuring that components are well-focused and independent.
 
@@ -254,7 +245,7 @@ The High Cohesion and Low Coupling principle suggests that components should hav
 **Key Concept:**
 The High Cohesion and Low Coupling principle is violated when components have multiple unrelated responsibilities (low cohesion) and tight dependencies on other components (high coupling). In the violation example, a monolithic ECommerceSystem class handles product management, shopping cart, customer management, order processing, payment processing, and notifications, making it difficult to understand, test, and maintain. The correct implementation separates these concerns into distinct classes (Product, ShoppingCart, OrderProcessor, PaymentService, NotificationService), each with a single responsibility and minimal dependencies, making the code more modular, easier to understand, and simpler to maintain.
 
-### 20. Encapsulation Principle (E)
+### 19. Encapsulation Principle (E)
 
 Encapsulation is the bundling of data and methods that operate on that data within a single unit (class), and restricting access to some of the object's components. It hides the internal state and requires all interaction to be performed through an object's methods.
 
@@ -267,7 +258,7 @@ Encapsulation is the bundling of data and methods that operate on that data with
 **Key Concept:**
 The Encapsulation principle is violated when internal state is directly exposed and can be modified without any control or validation. In the violation example, a BankAccount class exposes all its properties publicly, allowing direct modification of the balance, manipulation of transaction history, and even replacement of methods, leading to data integrity issues and security vulnerabilities. The correct implementation uses private fields and methods (using the # syntax in JavaScript) and provides controlled access through public methods that include validation, ensuring data integrity and hiding implementation details from users of the class.
 
-### 21. Abstraction Principle (A)
+### 20. Abstraction Principle (A)
 
 Abstraction is the concept of hiding complex implementation details and exposing only the necessary parts of an object. It allows us to model real-world entities by focusing on what an object does rather than how it does it.
 
@@ -280,7 +271,7 @@ Abstraction is the concept of hiding complex implementation details and exposing
 **Key Concept:**
 The Abstraction principle is violated when implementation details are exposed and clients are forced to understand the internal workings of an object. In the violation example, a MediaPlayer class exposes internal details like buffers, codecs, and decoder states, forcing clients to understand these details and follow a complex sequence of method calls. The correct implementation uses an abstract base class with a clear interface, hiding complex implementation details in concrete subclasses, and providing a factory to further abstract the creation process. This makes the code more maintainable, extensible, and easier to use, as clients can focus on what the object does rather than how it does it.
 
-### 22. Modularity Principle (M)
+### 21. Modularity Principle (M)
 
 Modularity is the practice of organizing code into separate, independent modules with clear interfaces. Each module should have a single responsibility and minimal dependencies on other modules.
 
@@ -293,7 +284,7 @@ Modularity is the practice of organizing code into separate, independent modules
 **Key Concept:**
 The Modularity principle is violated when code is not properly separated into independent modules with clear interfaces. In the violation example, an e-commerce application is implemented as a monolithic object with all functionality (products, cart, orders, UI) mixed together, leading to tight coupling, low cohesion, and difficulty in maintenance and testing. The correct implementation separates the application into distinct modules (ProductModule, CartModule, OrderModule), each with a single responsibility and well-defined interfaces, making the code more maintainable, reusable, and testable.
 
-### 23. Design for Testability Principle (DfT)
+### 22. Design for Testability Principle (DfT)
 
 Design for Testability is a software design principle that emphasizes creating code that can be easily and thoroughly tested. Systems should be built so they can be easily and reliably tested, which often means writing modular, loosely-coupled code and providing hooks for automated tests.
 
@@ -306,7 +297,7 @@ Design for Testability is a software design principle that emphasizes creating c
 **Key Concept:**
 The Design for Testability principle is violated when code is written in a way that makes it difficult or impossible to test in isolation. In the violation example, an authentication service has hard-coded dependencies, no separation of concerns, hidden side effects, and direct access to global state, making it nearly impossible to test specific behaviors without complex setup. The correct implementation uses dependency injection, clear separation of concerns, and well-defined interfaces to create a system that can be easily tested with mock objects, allowing for comprehensive unit tests that verify behavior in isolation.
 
-### 24. Meaningful Naming Principle (MN)
+### 23. Meaningful Naming Principle (MN)
 
 The Meaningful Naming principle states that developers should use clear, descriptive names for variables, functions, classes, etc. Choosing good names significantly improves code readability and maintainability. Well-chosen identifiers act as documentation and reduce the mental overhead for anyone reading or modifying the code later.
 
@@ -319,7 +310,7 @@ The Meaningful Naming principle states that developers should use clear, descrip
 **Key Concept:**
 The Meaningful Naming principle is violated when code uses unclear, cryptic, or inconsistent names that obscure the purpose and behavior of the code. In the violation example, a task management system uses abbreviated class names like 'TM' instead of 'Task', cryptic method names like 'mC' instead of 'markAsCompleted', and single-letter variable names that give no indication of their purpose. The correct implementation uses descriptive class names, intention-revealing method names, and consistent naming conventions, making the code self-documenting and easier to understand, maintain, and extend.
 
-### 25. Exceptions Should Be Exceptional Principle (ESBE)
+### 24. Exceptions Should Be Exceptional Principle (ESBE)
 
 The Exceptions Should Be Exceptional principle states that exceptions should be used only for exceptional conditions and not for regular flow control. Exceptions are expensive operations in terms of performance and should be reserved for truly exceptional paths.
 
@@ -332,20 +323,7 @@ The Exceptions Should Be Exceptional principle states that exceptions should be 
 **Key Concept:**
 The Exceptions Should Be Exceptional principle is violated when code uses exceptions for normal flow control, such as for expected conditions like missing parameters, user not found, or input validation. In the violation example, a user data processing system throws exceptions for normal, expected conditions and uses catch blocks for regular flow control, creating performance issues and obscuring the intent of the code. The correct implementation uses conditional checks for expected scenarios and reserves exceptions for truly unexpected errors, making the code more efficient, clearer in intent, and easier to maintain.
 
-### 26. Postel's Robustness Principle (PR)
-
-Postel's Robustness Principle (also known as the Law of Robustness) states: "Be conservative in what you do, be liberal in what you accept from others." In programming, this means accepting a wide range of inputs (being liberal in what you accept) but producing only well-formed outputs (being conservative in what you send).
-
-**Location:** [postels-robustness-principle](./postels-robustness-principle)
-
-**Files:**
-- [correct-implementation.js](./postels-robustness-principle/correct-implementation.js) - Shows a proper implementation of PR using a user profile API that accepts various input formats but always returns standardized outputs
-- [violation.js](./postels-robustness-principle/violation.js) - Demonstrates a violation of PR by being strict in what it accepts and inconsistent in what it produces
-
-**Key Concept:**
-Postel's Robustness Principle is violated when code is strict about input formats (not liberal in what it accepts) and inconsistent in its output formats (not conservative in what it sends). In the violation example, a user profile service rejects inputs that don't exactly match expectations and returns inconsistent response formats, making it difficult to use and integrate with. The correct implementation accepts and normalizes various input formats while always returning well-structured, consistent responses, creating a more robust, user-friendly, and interoperable system.
-
-### 27. Command-Query Separation Principle (CQS)
+### 25. Command-Query Separation Principle (CQS)
 
 The Command-Query Separation principle states that every method should be either a command that performs an action, or a query that returns data to the caller, but not both. Commands change state but don't return values, while queries return values but don't change state.
 
@@ -358,7 +336,7 @@ The Command-Query Separation principle states that every method should be either
 **Key Concept:**
 The Command-Query Separation principle is violated when methods both change state and return values, creating side effects that make code harder to understand, test, and maintain. In the violation example, a bank account implementation has methods that both modify the account state and return information about that state, leading to unpredictable behavior and making it difficult to reason about the code. The correct implementation clearly separates commands (deposit, withdraw) from queries (getBalance, getTransactionHistory), making the code more predictable, easier to test, and simpler to maintain.
 
-### 28. Design by Contract Principle (DbC)
+### 26. Design by Contract Principle (DbC)
 
 Design by Contract is a software design approach where components have formal, precise, and verifiable interface specifications in the form of preconditions, postconditions, and invariants. Preconditions specify what must be true before a method executes, postconditions specify what must be true after a method executes, and invariants specify what must remain true throughout the execution of a method.
 
@@ -371,7 +349,7 @@ Design by Contract is a software design approach where components have formal, p
 **Key Concept:**
 The Design by Contract principle is violated when code lacks explicit contracts, has incomplete precondition checks, fails to enforce postconditions, or doesn't maintain object invariants. In the violation example, a bank account implementation has missing or incomplete precondition checks, no postcondition verification, and allows the object to enter invalid states, leading to unpredictable behavior and data integrity issues. The correct implementation explicitly defines and enforces contracts for each method, with clear preconditions, postconditions, and invariants, making the code more reliable, self-documenting, and easier to debug when issues arise.
 
-### 29. Single Level of Abstraction Principle (SLAP)
+### 27. Single Level of Abstraction Principle (SLAP)
 
 The Single Level of Abstraction Principle states that code within a method or function should be at the same level of abstraction. This means that high-level operations should not be mixed with low-level details in the same method. Each method should either contain high-level operations (calling other methods) or low-level operations (implementation details), but not both.
 
@@ -384,7 +362,7 @@ The Single Level of Abstraction Principle states that code within a method or fu
 **Key Concept:**
 The Single Level of Abstraction Principle is violated when methods mix high-level operations with low-level implementation details. In the violation example, methods combine orchestration with specific implementation details, making the code harder to read, understand, and maintain. The correct implementation separates high-level operations (that call other methods) from low-level operations (that implement specific tasks), creating a hierarchical structure that improves readability, maintainability, and testability. By following SLAP, the code becomes more coherent and reduces the cognitive load required to understand it.
 
-### 30. Least Common Mechanism Principle (LCM)
+### 28. Least Common Mechanism Principle (LCM)
 
 The Least Common Mechanism Principle states that we should minimize the amount of functionality or mechanism that is shared between different parts of a system. Each component should have its own specialized mechanisms rather than relying on shared, general-purpose mechanisms.
 
@@ -397,7 +375,7 @@ The Least Common Mechanism Principle states that we should minimize the amount o
 **Key Concept:**
 The Least Common Mechanism Principle is violated when a system uses a single, general-purpose mechanism that is shared across different components or user types. In the violation example, a user management system implements a single User class with complex conditional logic to handle different user types (admin, regular, guest), leading to increased complexity, reduced security, and maintenance issues. The correct implementation provides specialized classes for each user type, each with its own tailored authentication mechanism and functionality, making the code more maintainable, secure, and easier to extend.
 
-### 31. Idempotency Principle (I)
+### 29. Idempotency Principle (I)
 
 The Idempotency Principle states that an operation can be applied multiple times without changing the result beyond the initial application. In other words, if f(x) = f(f(x)), then f is idempotent. This is particularly important in distributed systems, APIs, and error recovery scenarios where operations might be repeated.
 
@@ -410,7 +388,7 @@ The Idempotency Principle states that an operation can be applied multiple times
 **Key Concept:**
 The Idempotency Principle is violated when operations produce different results when called multiple times with the same input. In the violation example, a user profile management system implements non-idempotent operations that change the result with each call, such as generating new IDs, accumulating values, toggling states, and adding duplicate entries. This leads to unpredictable behavior when operations are retried, potential data corruption, and difficulties in error handling. The correct implementation ensures that operations can be safely repeated without unintended side effects, making the system more reliable, especially in distributed environments where network failures might cause operations to be retried.
 
-### 32. Graceful Degradation Principle (GD)
+### 30. Graceful Degradation Principle (GD)
 
 The Graceful Degradation Principle states that systems should continue to provide core functionality even when non-critical components fail, rather than completely breaking. This principle emphasizes distinguishing between essential and optional features, implementing fallback mechanisms, and ensuring that the failure of enhancement features doesn't prevent access to basic functionality.
 
@@ -426,7 +404,7 @@ While "fail-fast" systems immediately stop on error to prevent data corruption, 
 **Key Concept:**
 A system violates this principle when all dependencies are treated as critical, causing complete failure when any component goes down. Proper design isolates optional features (e.g., analytics, caching, recommendations), allowing core operations to continue through controlled fallbacks. In the violation example, an e-commerce system fails entirely when any service is unavailable, even though core product data remains accessible. The correct implementation wraps non-critical operations in try-catch blocks with appropriate fallbacks, ensuring users can access essential functionality while optional services degrade gracefully. This approach improves system resilience, enhances user experience during partial outages, and maintains business continuity in real-world conditions where dependencies may be temporarily unavailable. Implementing graceful degradation is not just a coding pattern—it's a mindset of building software that respects real-world imperfection.
 
-### 33. Observability-First Principle (OFP)
+### 31. Observability-First Principle (OFP)
 
 Definition:
 Design software so that its internal behavior can be accurately understood from its external signals—logs, metrics, and traces—at any time and under any conditions.
@@ -464,7 +442,7 @@ The principle is upheld when:
 By avoiding unstructured logs and missing correlation IDs, teams prevent real-world pain during multi-service debugging under pressure—issues that can otherwise multiply MTTR by hours.
 
 
-### 34. Backpressure-First Principle (BFP)
+### 32. Backpressure-First Principle (BFP)
 
 Definition:
 Safeguard stability before maximizing throughput: design software so it never accepts more work than it can safely complete. Apply backpressure at every boundary using bounded buffers, rate limits, maximum concurrency, timeouts, and use explicit shedding only as a last resort—so overload is controlled and visible instead of hidden in unbounded queues.
@@ -508,7 +486,7 @@ See also: 33. Observability-First Principle (OFP) for telemetry practices that m
 **Key Concept:**
 The principle is violated when a system accepts work unconditionally, buffers it in unbounded queues, spawns unlimited asynchronous tasks, and omits timeouts—causing memory bloat, long-tail latency, and cascading failure when load spikes. The correct implementation applies backpressure at the ingress (rate limiting), within the service (bounded queues, capped concurrency), and at the egress (timeouts and cancellation). Prefer backpressure first (slow callers with clear signals), then explicit shedding when necessary, and make both observable (metrics, logs, traces) so callers and operators can react. This makes services more scalable, robust, maintainable, and easier to operate in real-world conditions where load is bursty and failures happen.
 
-### 35. Boundary Defense Principle (BDP)
+### 33. Boundary Defense Principle (BDP)
 
 Definition:
 Treat every interface between subsystems as a trust boundary—whether external (user input, APIs, files) or internal (microservices, modules, layers). All data crossing any boundary must be validated, sanitized, and normalized at the point of crossing, with each component treating incoming data as untrusted regardless of its source.

@@ -2,6 +2,18 @@
 // This file demonstrates a violation of the WET principle by showing an implementation
 // that uses excessive abstraction to avoid duplication (DRY), resulting in code that is
 // harder to understand, maintain, and extend.
+//
+// ⚠️ CONTEXT:
+// This example shows when EXCESSIVE adherence to DRY becomes harmful. It does NOT mean
+// you should always duplicate code. Most of the time, DRY is still the right choice.
+// WET should only be applied when:
+// - The abstraction required to avoid duplication is more complex than the duplication itself
+// - Different use cases have genuinely different requirements that will diverge over time
+// - Forced sharing of code creates tight coupling between unrelated concerns
+//
+// In this example, trying to avoid ALL duplication led to a complex, inflexible system
+// with workarounds and hidden business logic. Sometimes, writing code twice creates
+// clearer, more maintainable software.
 
 // Example: A user management system with a single, overly abstract validation system
 

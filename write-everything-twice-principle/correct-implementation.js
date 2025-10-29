@@ -2,6 +2,17 @@
 // The WET principle suggests that in some cases, duplicating code can be more beneficial than
 // trying to abstract it into a shared implementation, especially when the duplicated code
 // serves different purposes or might evolve differently over time.
+//
+// ⚠️ IMPORTANT WARNINGS:
+// 1. This is NOT a blanket permission to duplicate code freely.
+// 2. DRY (Don't Repeat Yourself) should STILL be your default approach.
+// 3. Only apply WET when:
+//    - Code serves fundamentally different purposes despite looking similar
+//    - Different pieces are likely to evolve independently over time
+//    - Forced abstraction would create excessive complexity or coupling
+//    - The duplication makes the code MORE maintainable, not less
+// 4. Remember: Duplication is far cheaper than the wrong abstraction.
+// 5. Use WET sparingly and intentionally, not as an excuse to avoid thinking about abstractions.
 
 // Example: A user management system with separate validation for registration and profile update
 
