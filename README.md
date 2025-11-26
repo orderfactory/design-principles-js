@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates 34 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 35 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -739,3 +739,101 @@ This synergy shows VIP as a force multiplier—it doesn't replace other principl
 Violation: Indifference toward quality issues ("it's just a warning," "we'll fix it later") leads to exponential technical debt accumulation, degraded standards, hidden bugs, and eventual unmaintainability. The violation example shows a lenient build system that passes builds despite warnings, suppresses issues instead of addressing them, and accumulates debt over time—mirroring the real-world descent from "5 warnings we'll fix next sprint" to "500+ warnings nobody looks at anymore." This illustrates entropy in action: each tolerated issue makes the next easier to tolerate until quality consciousness erodes completely.
 
 Correct: Disciplined intolerance—consistently addressing quality issues through small, immediate acts—prevents degradation from the start. The correct implementation applies a three-tier approach: blocks critical integrity issues immediately (security, failing tests), resolves hygiene issues promptly (warnings, unused code), and automates style enforcement completely. It uses metrics to make quality visible (warning trends, TODO ratios, build health scores) and applies a ratcheting strategy for legacy systems (no new issues, fix opportunistically, tighten over time). This approach maintains pristine code quality continuously rather than requiring expensive cleanup later, embodying continuous integrity over punitive perfectionism. The principle recognizes that sustaining high standards through daily discipline is easier than recovering from years of neglect—preventing the "broken windows" effect where visible neglect encourages more neglect. By practicing virtuous intolerance toward code (not coders), teams build codebases that remain maintainable, secure, and pleasant to work with over their entire lifetime.
+
+### 35. Explicit Dependencies Principle (EDP)
+
+Definition:
+Every dependency a component requires must be explicitly declared and provided at the point of use. Components should never reach out to obtain their own dependencies through global state, ambient context, service locators, or implicit environment coupling—except for controlled, cross-cutting concerns where explicitness provides diminishing returns.
+
+Description:
+The Explicit Dependencies Principle makes the "what does this need to work?" question answerable by looking at a component's interface alone. When dependencies are explicit, code becomes self-documenting, testable in isolation, and safe to refactor. When dependencies are hidden, components appear simpler than they are—until they fail mysteriously in tests, break during refactoring, or behave differently across environments.
+
+**Core practices:**
+
+**Constructor/Parameter Injection:**
+- Pass all *structural* dependencies through constructors or function parameters
+- A function's signature should reveal everything it needs to operate
+- If you can't construct a component without external setup, dependencies are hidden
+
+**No Global State Access:**
+- Avoid `global`, module-level mutable state, or ambient singletons for business logic
+- Environment variables, configuration, and current time are dependencies—inject them where testability matters
+- Database connections, HTTP clients, and external services must be passed in
+
+**No Service Locators in Business Logic:**
+- Avoid "ask the container for X" patterns inside domain/business code
+- Service locators hide dependencies behind a single, opaque dependency
+- Composition roots should wire dependencies; components should receive them
+
+**The Honesty Test:**
+A component passes the honesty test if: (1) its constructor/parameters fully describe what it needs, (2) it can be instantiated and tested with only those declared dependencies, (3) it makes no calls to obtain additional dependencies at runtime, and (4) it doesn't retain unused dependencies from past refactors.
+
+**Dependency Weight—Not All Dependencies Are Equal:**
+
+Apply EDP rigor proportionally:
+
+*Heavy Dependencies (Always Explicit):*
+- Database repositories and connections
+- External service clients (HTTP, gRPC, message queues)
+- Business service interfaces
+- Payment processors, third-party integrations
+
+*Medium Dependencies (Usually Explicit):*
+- Configuration objects
+- Clock/time providers (when time-sensitive logic needs testing)
+- ID generators (when determinism matters for tests)
+
+*Lightweight Cross-Cutting Concerns (Pragmatic Flexibility):*
+- Loggers and metrics collectors
+- Distributed tracing context
+
+For lightweight concerns, strict injection everywhere can create noise without proportional benefit. Consider controlled ambient patterns for these.
+
+**When to Group Dependencies:**
+
+Parameter explosion is a code smell—but EDP doesn't cause it; EDP *exposes* it. A constructor with 15 parameters indicates a component with too many responsibilities.
+
+However, grouping is appropriate when:
+- Dependencies are *cohesive* (represent a single concept)
+- The group is *immutable* (no hidden mutation)
+- Grouping *reduces noise* without hiding important information
+
+Example: Group `taxRate`, `cacheTtlMs`, and `maxItemsPerOrder` into an immutable `OrderConfig` object.
+
+**Tradeoffs and practical considerations:**
+
+*Verbosity vs. Clarity:*
+Explicit dependencies mean more parameters, longer constructors, and more wiring code. This is a feature, not a bug—it makes complexity visible. If a component has 10 dependencies, that's important information.
+
+*Composition Roots:*
+All the wiring has to happen somewhere. Designate clear "composition roots" (application entry points, request handlers) where dependencies are assembled. Keep business logic free of assembly concerns.
+
+*Legacy Migration:*
+Transitioning from hidden to explicit dependencies can be done incrementally:
+1. Identify components with hidden dependencies (they're hard to test)
+2. Add explicit parameters alongside existing hidden access
+3. Update callers to pass dependencies explicitly
+4. Remove hidden dependency access once all callers are updated
+
+*Design Smells Exposed by EDP:*
+- Low cohesion (too many dependencies) → Split into smaller components
+- Same dependencies everywhere → Missing abstraction or infrastructure pattern
+- Dependency only used in one method → Method may belong elsewhere
+- Unused dependencies after refactor → Remove them (dependency drift)
+
+**Contrast with related principles:**
+
+- **Dependency Inversion (DIP)**: DIP says *what* to depend on (abstractions, not concretions). EDP says *how* to receive dependencies (explicitly, not implicitly). You can follow DIP while violating EDP.
+- **Design for Testability (DfT)**: EDP is arguably the single most impactful practice for testability. Explicit dependencies can be replaced with test doubles trivially.
+- **High Cohesion/Low Coupling (HCLC)**: EDP makes coupling *visible*. A component with many explicit dependencies has high coupling—now you can see it and address it.
+
+**Location:** [explicit-dependencies-principle](./explicit-dependencies-principle)
+
+**Files:**
+- [correct-implementation.js](./explicit-dependencies-principle/correct-implementation.js) - Shows proper explicit dependencies with constructor injection, dependency interfaces, composition roots, grouped configuration, deterministic time/IDs, and comprehensive test doubles enabling trivial unit testing
+- [violation.js](./explicit-dependencies-principle/violation.js) - Demonstrates hidden dependencies through global state, singletons, service locators, environment coupling, and implicit time/randomness—making code untestable, non-deterministic, and dangerous to refactor
+
+**Key Concept:**
+Violation: Hidden dependencies through global state, singletons, service locators, and implicit environment access make code appear simple while hiding massive complexity. The violation example's `OrderService` constructor takes no parameters but secretly depends on a database singleton, global cache, service locator, environment variables, current time, and random number generation—making it impossible to test deterministically and dangerous to refactor. Tests require complex mocking frameworks, suffer from global state pollution, and behave differently across environments.
+
+Correct: Explicit dependencies declared in constructors and parameters make code honest about its requirements. The correct implementation's constructor clearly states all dependencies (repositories, services, config, infrastructure context). Tests easily substitute fake implementations—time and IDs are deterministic, interactions are verifiable, and no global state pollution occurs. The composition root centralizes wiring while keeping business logic clean. Apply EDP rigor proportionally: heavy business dependencies always explicit, lightweight cross-cutting concerns may use controlled ambient patterns. When EDP reveals parameter explosion, address the underlying cohesion problem. This approach enables true unit testing, safe refactoring, and clear understanding of component requirements—fundamental enablers for scalable, robust, maintainable, high-quality software.
