@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates 35 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 36 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -837,3 +837,111 @@ Transitioning from hidden to explicit dependencies can be done incrementally:
 Violation: Hidden dependencies through global state, singletons, service locators, and implicit environment access make code appear simple while hiding massive complexity. The violation example's `OrderService` constructor takes no parameters but secretly depends on a database singleton, global cache, service locator, environment variables, current time, and random number generation—making it impossible to test deterministically and dangerous to refactor. Tests require complex mocking frameworks, suffer from global state pollution, and behave differently across environments.
 
 Correct: Explicit dependencies declared in constructors and parameters make code honest about its requirements. The correct implementation's constructor clearly states all dependencies (repositories, services, config, infrastructure context). Tests easily substitute fake implementations—time and IDs are deterministic, interactions are verifiable, and no global state pollution occurs. The composition root centralizes wiring while keeping business logic clean. Apply EDP rigor proportionally: heavy business dependencies always explicit, lightweight cross-cutting concerns may use controlled ambient patterns. When EDP reveals parameter explosion, address the underlying cohesion problem. This approach enables true unit testing, safe refactoring, and clear understanding of component requirements—fundamental enablers for scalable, robust, maintainable, high-quality software.
+
+### 36. Locality of Behavior Principle (LoBP)
+
+Definition:
+Design systems so that understanding "what happens when X" requires minimal navigational distance within well-defined boundaries. Optimize for traceability and cognitive proximity—the ability to follow cause to effect through a clear, explicit path—not for minimal file count or maximal colocation.
+
+Description:
+As systems grow, behavior naturally fragments across files through abstraction layers, event handlers, decorators, middleware, interceptors, and framework conventions. While separation of concerns and abstraction have their place, taken too far they create "action at a distance"—understanding a simple button click requires tracing through controllers, services, event buses, listeners, aspect-oriented interceptors, and framework magic scattered across dozens of files.
+
+The Locality of Behavior Principle pushes back: optimize for comprehension. When a developer asks "what happens when a user places an order?", they should be able to follow a clear, traceable path—not grep through the entire codebase hoping to find all the pieces. Code is read far more often than it's written, and debugging scattered behavior is one of the most time-consuming activities in software maintenance.
+
+**Critical constraint:** Locality applies within well-defined boundaries—a module, bounded context, or feature. LoBP is not permission to collapse domain boundaries or create god objects. Think of locality as reducing navigational distance within a neighborhood, not eliminating neighborhoods entirely.
+
+**The Locality Gradient:**
+
+Rather than binary "local vs scattered," think in terms of a spectrum:
+
+| Level | Characteristics | When Appropriate |
+|-------|-----------------|------------------|
+| **High Locality** | Direct call chains, explicit orchestration, behavior visible at call site | Core business flows, frequently-debugged code, onboarding-critical paths |
+| **Medium Locality** | Clear indirection with visible registries, documented extension points | Plugin systems, well-bounded cross-cutting concerns, stable abstractions |
+| **Low Locality** | Implicit framework-driven behavior, convention-based discovery, unbounded event fan-out | Infrastructure internals, genuinely generic frameworks (use sparingly) |
+
+Key practices:
+
+**Colocate by Feature, Not Layer:**
+- Group code by business capability rather than technical layer
+- Keep handlers, validation, and business logic for a feature together
+- Prefer feature folders (`/orders/`, `/users/`) over layer folders (`/controllers/`, `/services/`)
+
+**Minimize Indirection Layers:**
+- Each layer of abstraction should provide proportional value
+- Question whether generic base classes and factories earn their cognitive cost
+- Direct code is often clearer than clever architecture
+
+**Explicit Over Implicit:**
+- Prefer explicit code paths over framework magic (auto-wiring, annotation processing, convention-based routing)
+- Make dependencies and side effects visible at the call site
+- When behavior is triggered implicitly, document it prominently
+
+**Trace-Friendly Design:**
+- A developer should be able to trace from user action to database write through a clear path
+- Avoid deep event chains where A triggers B triggers C triggers D for core flows
+- When indirection is necessary, maintain visible registries and documentation
+
+**Events: A Nuanced View:**
+
+Events are powerful tools that trade locality for decoupling. Distinguish event types by their impact:
+
+- **Control-flow events** (event triggers next business step): Severely damages locality—avoid for core business flows; prefer explicit orchestration
+- **Notification events** (event publishes completed fact): Moderate impact—acceptable for cross-boundary communication; keep handlers discoverable
+- **Integration events** (event crosses bounded contexts): Expected indirection—appropriate for decoupling domains; document contracts clearly
+
+Rule of thumb: Events are most damaging to locality when they control core business flow rather than publish completed facts.
+
+**Acceptable vs Dangerous Duplication:**
+
+LoBP exists in tension with DRY, but not all duplication is equal:
+
+- **Orchestration and flow** (how steps are sequenced): Low risk—often acceptable; flows may evolve independently
+- **Business rules and policies**: High risk—dangerous; divergence causes bugs; centralize
+- **Security checks and authorization**: Critical risk—never duplicate; single source of truth required
+
+The duplication test: Ask "if this logic changes, must it change everywhere?" If yes, centralize it.
+
+**Test Strategy Alignment:**
+
+Tests should follow locality:
+- Feature tests should live near the code that implements the feature
+- When locality is high, fewer mocks are needed—the real collaborators are right there
+- If testing requires mocking 15 scattered dependencies, locality has degraded
+
+**The Comprehension Test:**
+
+A codebase exhibits healthy locality if:
+1. A new developer can answer "what happens when X?" by following a clear path through a reasonable number of files (~5 as a warning signal, not a hard rule)
+2. A stack trace from production maps clearly to business logic
+3. Adding a feature doesn't require touching files across many unrelated directories
+4. Core business flows can be traced without framework expertise
+
+**Common Misapplications:**
+
+| Misapplication | Why It's Wrong |
+|----------------|----------------|
+| **Feature blobs** (3000-line files) | Locality is about traceability, not cramming everything together |
+| **God objects** | Violates encapsulation and single responsibility |
+| **Collapsing domain boundaries** | Destroys domain isolation; creates coupling nightmares |
+| **Duplicating invariants** | Creates correctness bugs when logic diverges |
+
+Contrast with related principles:
+
+| Principle | Relationship to LoBP |
+|-----------|---------------------|
+| **Separation of Concerns** | SoC defines boundaries; LoBP optimizes within them |
+| **High Cohesion** | Cohesion is about focus; locality is about navigational proximity |
+| **DRY** | LoBP may accept orchestration duplication; never duplicate invariants |
+| **Single Level of Abstraction** | SLAP is about vertical consistency; LoBP is about horizontal traceability |
+
+**Location:** [locality-of-behavior-principle](./locality-of-behavior-principle)
+
+**Files:**
+- [correct-implementation.js](./locality-of-behavior-principle/correct-implementation.js) - Shows proper locality with explicit orchestration in OrderService.placeOrder() where all steps are visible, dependencies are injected and traceable, side effects are explicit at call sites, and testing requires only simple dependency substitution
+- [violation.js](./locality-of-behavior-principle/violation.js) - Demonstrates scattered behavior where placing an order triggers hidden event cascades across 5+ listeners, decorators add invisible logging/caching/validation, base classes contain hidden lifecycle hooks, and understanding the flow requires reading 15+ locations
+
+**Key Concept:**
+Violation: Scattered behavior through event spaghetti, decorator/aspect overuse, framework magic, and inheritance fog makes the "what happens when X?" question require archaeological investigation. The violation example's `placeOrder()` looks simple but triggers hidden event handlers (InventoryListener, PaymentListener, NotificationListener, AuditListener, AnalyticsListener), invisible decorators (logging, caching, validation, retry), base class lifecycle hooks, and cascading secondary events—requiring 14+ files to understand one user action. Debugging becomes nightmarish, onboarding slow, and changes risky because modifying any piece might break unknown handlers.
+
+Correct: Explicit orchestration keeps all behavior visible and traceable. The correct implementation's `placeOrder()` method shows all 7 steps inline: validation, order creation, inventory reservation, payment processing (with visible compensation on failure), persistence, notifications, and event publishing for analytics. Dependencies are injected and visible in the constructor. Testing is trivial—just pass mock objects, no framework magic to configure. Events are used only for cross-boundary notifications (facts published to analytics/audit) where decoupling is intentional, not for core business flow control. The locality gradient is respected: high locality for business logic, medium locality for service interfaces, acceptable indirection for fire-and-forget notifications. This approach enables rapid onboarding, safe changes, clear debugging, and the ability to answer "what happens when X?" by reading, not archaeology.
