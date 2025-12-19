@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates 36 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 37 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -945,3 +945,207 @@ Contrast with related principles:
 Violation: Scattered behavior through event spaghetti, decorator/aspect overuse, framework magic, and inheritance fog makes the "what happens when X?" question require archaeological investigation. The violation example's `placeOrder()` looks simple but triggers hidden event handlers (InventoryListener, PaymentListener, NotificationListener, AuditListener, AnalyticsListener), invisible decorators (logging, caching, validation, retry), base class lifecycle hooks, and cascading secondary events—requiring 14+ files to understand one user action. Debugging becomes nightmarish, onboarding slow, and changes risky because modifying any piece might break unknown handlers.
 
 Correct: Explicit orchestration keeps all behavior visible and traceable. The correct implementation's `placeOrder()` method shows all 7 steps inline: validation, order creation, inventory reservation, payment processing (with visible compensation on failure), persistence, notifications, and event publishing for analytics. Dependencies are injected and visible in the constructor. Testing is trivial—just pass mock objects, no framework magic to configure. Events are used only for cross-boundary notifications (facts published to analytics/audit) where decoupling is intentional, not for core business flow control. The locality gradient is respected: high locality for business logic, medium locality for service interfaces, acceptable indirection for fire-and-forget notifications. This approach enables rapid onboarding, safe changes, clear debugging, and the ability to answer "what happens when X?" by reading, not archaeology.
+
+### 37. Incremental Validity Principle (IVP)
+
+Definition:
+Design multi-step and long-running operations so that interruption at any point leaves the system in a **locally valid, invariant-respecting state for the scope of completed work**, with partial progress preserved and recoverable rather than lost.
+
+Description:
+The Incremental Validity Principle addresses a fundamental challenge in software: operations that span multiple steps, take significant time, or cross system boundaries can fail partway through. When they do, the system must not be left in a corrupted or inconsistent state, and completed work should not be lost.
+
+Too often, developers design operations as monolithic units that either succeed completely or fail completely—discarding all progress on failure. This "all-or-nothing" approach is simple conceptually but creates:
+- **Lost work**: Hours of processing vanish on a crash
+- **User frustration**: Large uploads restart from zero
+- **Resource waste**: Reprocessing already-completed items
+- **Recovery complexity**: Unknown state after failures
+- **Operational burden**: Manual intervention to fix partial states
+
+IVP inverts the default: design for interruption as the normal case. Assume operations WILL be interrupted, and ensure the system remains valid when they are.
+
+**Critical prerequisite:** IVP is difficult to implement correctly without **Idempotency** (for safe re-execution) and **Observability-First** (for progress visibility and debugging). These principles should be in place before applying IVP to complex workflows.
+
+**Should I Apply IVP? — Decision Heuristic:**
+
+Before investing in IVP infrastructure, answer these questions:
+
+| Question | If YES | If NO |
+|----------|--------|-------|
+| Does the operation take longer than 30 seconds? | Strong candidate for IVP | Simple retry may suffice |
+| Is recomputation expensive (CPU, $, user time)? | IVP likely worth the cost | Restart-from-zero acceptable |
+| Is partial progress meaningful to preserve? | IVP adds real value | All-or-nothing may be correct |
+| Will failure require manual cleanup without checkpoints? | IVP prevents operational pain | Automatic cleanup possible |
+| Is the operation user-facing with visible progress? | IVP improves UX significantly | Internal ops may not need it |
+
+**When progress preservation is NOT desirable:**
+- Financial operations where partial success has legal/audit implications
+- Security-sensitive flows where partial state could leak information
+- Workflows where partial completion creates false user confidence
+- Operations where "all succeeded" is a required business invariant
+
+In these cases, all-or-nothing with proper compensation may be more appropriate than incremental checkpointing.
+
+**Core practices:**
+
+**Checkpoint at Meaningful Boundaries:**
+- Persist progress at logical boundaries (per-record, per-batch, per-step)
+- Choose checkpoint granularity based on recovery cost vs. overhead
+- Ensure checkpoints are atomic—a half-written checkpoint is as bad as none
+- Store enough context to resume, not just "step 3 of 5"
+
+**Design Atomic Units of Work:**
+- Break large operations into independently-committable units
+- Each unit should leave the system in a **locally valid** state when complete
+- Order units so dependencies are satisfied incrementally
+- Prefer many small commits over one large transaction
+
+**Local vs Global Validity:**
+
+IVP requires **local validity**—invariants hold for completed work—not necessarily **global validity** at every moment:
+- Entity-level invariants (single record consistency): Must always hold
+- Aggregate-level invariants (totals, counts): May be temporarily inconsistent, must be restorable
+- System-level invariants (cross-service consistency): May require eventual consistency patterns
+
+Example: A batch job updating account balances may have individual accounts valid while the system-wide total is temporarily inconsistent. This is acceptable if the checkpoint includes enough information to complete or roll back the aggregate update.
+
+**Recovery Strategies — Resume vs Compensate vs Reconcile:**
+
+IVP supports three recovery patterns, each appropriate for different situations:
+
+| Strategy | When to Use | Complexity | Example |
+|----------|-------------|------------|---------|
+| **Resume Forward** | Progress is valuable, remaining work is independent | Low | Batch processing from cursor position |
+| **Compensate Backward** | Partial state is invalid, must undo completed steps | High | Saga pattern for distributed transactions |
+| **Reconcile Later** | Partial state is tolerable, fix asynchronously | Medium | Mark failed + background job to resolve |
+
+Choose the simplest strategy that meets your consistency requirements:
+- **Resume** when you can: cheapest, simplest, most common
+- **Compensate** when you must: expensive but necessary for strong consistency
+- **Reconcile** when you can tolerate delay: pragmatic middle ground
+
+**Enable Resumption, Not Just Retry:**
+- Track which work is completed vs. pending
+- Skip completed work on resume (don't just restart from beginning)
+- Handle resume from any checkpoint, not just the last one
+- Distinguish "resume after crash" from "retry after error"
+
+**Make Progress Observable:**
+- Expose progress metrics (items processed, percentage complete, current phase)
+- Log checkpoint events for operational visibility
+- Enable progress inspection without disrupting the operation
+- Provide estimated time to completion where feasible
+
+**The Interruption Test:**
+
+A system exhibits incremental validity if:
+1. Killing the process at any moment leaves the system in a locally valid state
+2. Restarting the operation continues from the last checkpoint, not the beginning
+3. Completed work is never duplicated or lost
+4. External observers (users, operators) can see how far the operation progressed
+5. The operation can be paused and resumed intentionally, not just accidentally
+
+**Patterns by domain:**
+
+| Domain | IVP Pattern |
+|--------|-------------|
+| **Batch processing** | Process in chunks, commit per chunk, track cursor position |
+| **File uploads** | Chunked uploads with resume tokens, verify chunk integrity |
+| **Database migrations** | Per-table or per-batch commits, migration state table, forward-only |
+| **Workflow orchestration** | Saga pattern with compensation, persistent step state, idempotent steps |
+| **Form wizards** | Save draft per step, validate incrementally, allow backward navigation |
+| **Data pipelines** | Exactly-once semantics, offset tracking, dead-letter handling |
+| **Distributed transactions** | Prepare/commit phases, timeout handling, coordinator recovery |
+
+**Checkpoint granularity tradeoffs:**
+
+| Granularity | Pros | Cons |
+|-------------|------|------|
+| **Per-item** | Minimal lost work | High I/O overhead, slower throughput |
+| **Per-batch** | Balanced overhead | Some rework on failure, batch size tuning needed |
+| **Per-phase** | Simple implementation | Significant rework possible, coarse progress visibility |
+
+Choose based on: item processing cost, acceptable rework on failure, I/O capacity, and progress visibility requirements.
+
+**Cost awareness — Checkpointing isn't free:**
+
+IVP trades simplicity and throughput for recoverability. Be aware of:
+- **I/O amplification**: Every checkpoint is a write; frequent checkpoints multiply storage I/O
+- **Lock contention**: Checkpoints may require locks or transactions that block other operations
+- **Schema complexity**: Checkpoint tables, state machines, and recovery logic add code
+- **Write amplification**: Cloud storage often charges per write; checkpointing increases cost
+
+Measure the cost of checkpointing against the cost of lost work. For a 10-second operation, per-item checkpointing is probably overkill. For a 10-hour operation, it's essential.
+
+**Saga pattern — powerful but complex:**
+
+Sagas are the go-to pattern for distributed transaction recovery, but they carry significant complexity:
+- Compensation logic must be correct for every possible failure point
+- Partial compensation failures require additional handling (dead-letter, manual intervention)
+- Testing all failure paths is exponentially harder than testing the happy path
+- Debugging failed sagas requires excellent observability
+
+**Before reaching for sagas, consider simpler alternatives:**
+- Can the operation be made idempotent so simple retry suffices?
+- Can failure be handled by "mark failed + reconcile later" instead of immediate compensation?
+- Is the operation actually distributed, or can it be consolidated?
+
+Use sagas when you genuinely need distributed transaction semantics. Don't use them as a default pattern for all multi-step operations.
+
+**Testing implications:**
+
+IVP dramatically affects testing strategy. Proper IVP testing requires:
+
+- **Crash-at-every-point tests**: Simulate interruption between each checkpoint and verify valid state
+- **Restart verification**: Confirm resumed operations complete correctly without duplication
+- **Idempotency verification**: Re-running from any checkpoint produces consistent results
+- **Partial-state invariant checks**: Validate that local invariants hold at every checkpoint
+- **Compensation path testing**: For sagas, test every compensation path, not just the happy path
+- **Progress observability tests**: Verify metrics and logs correctly reflect actual progress
+
+Without this testing, IVP implementations often fail in production at the exact moments they're supposed to help.
+
+**Handling dependencies between steps:**
+
+When step N depends on step N-1's output:
+- Persist intermediate results, not just progress markers
+- Design steps to read from persisted state, not in-memory state
+- Consider whether dependent steps can be made independent through denormalization
+
+**Relationship to other principles:**
+
+- **Idempotency (I)**: **Required foundation.** IVP assumes resumed steps are safe to re-execute. Without idempotency, resumption causes duplication or corruption.
+- **Observability-First (OFP)**: **Required foundation.** IVP benefits from checkpoint events, progress metrics, and resumption logs. Without observability, debugging partial failures is guesswork.
+- **Fail Fast (FF)**: IVP doesn't contradict FF—fail fast when detecting errors, but preserve completed work before failing.
+- **Graceful Degradation (GD)**: GD keeps services running despite failures; IVP keeps *progress* safe despite interruptions. Complementary.
+- **Design by Contract (DbC)**: DbC invariants should hold at every checkpoint, not just at operation start/end.
+- **Explicit Dependencies (EDP)**: State required for resumption is a dependency—make it explicit and injectable for testing.
+
+**When NOT to apply IVP:**
+
+- Operations completing in milliseconds (overhead exceeds benefit)
+- Truly atomic operations that can't meaningfully checkpoint
+- Read-only operations with no persistent side effects
+- Operations where recomputation is cheap and simple retry suffices
+- Exploratory/experimental code where simplicity trumps robustness
+- Operations where partial success is semantically invalid (use all-or-nothing + compensation instead)
+
+**Common violations:**
+
+- In-memory-only state for multi-step operations
+- "Begin transaction... many operations... commit" patterns spanning minutes
+- Progress tracking that resets on restart
+- Assuming the happy path: "it'll probably finish"
+- Checkpoints that don't include enough context to resume
+- Ignoring partial failure in distributed operations
+- Over-engineering: applying IVP to operations where simple retry would suffice
+
+**Location:** [incremental-validity-principle](./incremental-validity-principle)
+
+**Files:**
+- [correct-implementation.js](./incremental-validity-principle/correct-implementation.js) - Shows proper IVP patterns: checkpoint-based batch processing with resume capability, chunked file uploads with resume tokens, draft-saving form wizards, offset-tracked stream processing, and saga pattern for distributed operations with compensation
+- [violation.js](./incremental-validity-principle/violation.js) - Demonstrates violations: monolithic batch processing where crash loses all work, file uploads without resume capability, forms without draft saving, stream processing without offset tracking, and distributed operations without saga/compensation
+
+**Key Concept:**
+Violation: The system treats operations as monolithic—either everything succeeds, or all progress is lost. A batch job processing 10,000 records keeps everything in memory and commits only at the end; a crash at record 9,999 loses all work. File uploads have no resume capability; a network hiccup at 95% means starting over. Database migrations run as single transactions that lock tables for hours and must restart completely on any failure. Multi-step order processing leaves the system in inconsistent state when payment succeeds but shipment fails—inventory reserved, money charged, but no order recorded. Users lose unsaved form data when sessions expire.
+
+Correct: Operations are designed for interruption from the start—but only where the cost-benefit justifies it. Batch jobs commit every N records and track the last-processed cursor; a crash at record 9,999 loses only records since the last checkpoint. File uploads use chunked protocols with resume tokens; reconnecting continues from the last confirmed chunk. Database migrations run per-table with a migration state tracker; failures affect only the current table. Order processing uses the saga pattern with compensation: each step records its completion, and failure triggers rollback of completed steps (release inventory, refund payment), returning the system to a valid state. Simpler workflows may use "mark failed + reconcile later" instead of full saga complexity. Forms auto-save drafts per field; session expiration loses nothing. Progress is observable, recovery strategy matches the consistency requirements, and the implementation cost is justified by the value of preserved progress. This approach trades implementation complexity for reliability—apply it where interruption is likely and lost work is expensive, not as a universal default.
