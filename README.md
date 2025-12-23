@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates 39 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 40 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -1375,3 +1375,85 @@ A system exhibits good blast radius containment if:
 Violation: A shared database connection pool serves all tenants; one tenant's runaway query exhausts all connections, blocking all other tenants. A single external service timeout cascades through the system because there's no circuit breaker. The recommendation service throws an exception that propagates to the order page, preventing purchases. Circuit breakers hide a dependency that's been failing for weeks—nobody notices until it's completely dead. An admin clicks "update all users" and corrupts every account. The system appears isolated at the service layer, but every service shares the same Redis cluster—one key pattern causes a thundering herd that takes down everything.
 
 Correct: Containment boundaries align with business risk, not theoretical purity. Per-tenant connection pools contain one tenant's query storms; circuit breakers trip and emit metrics when degraded mode persists too long. The recommendation widget catches its errors and renders "popular items" instead, while checkout proceeds normally. Shared state is audited: the cache is partitioned by service namespace. Admin tools require confirmation for bulk actions and stage changes with gradual rollout. Every containment mechanism has observability, recovery paths, and exit criteria. Failures stay small, visible, and temporary—not hidden and festering. For availability failures, contain and degrade gracefully; for correctness failures, fail fast and propagate. The blast radius is contained to the affected scope, and operators have clear visibility into degraded state.
+
+### 40. Temporal Decoupling Principle (TDP)
+
+Definition:
+Design systems so correctness does not depend on *implicit, undocumented, or hope-based assumptions* about timing, ordering, or execution speed. When temporal ordering is required, make it explicit, enforceable, observable, and testable.
+
+Description:
+Many system failures trace back to temporal assumptions that hold during development but fail in production: "service A always responds before service B," "this loop finishes before the callback fires," "these records are always processed in order." These hidden time bombs create race conditions, initialization failures, flaky tests, and mysterious production bugs that only surface under load.
+
+The Temporal Decoupling Principle targets *implicit* temporal coupling—the kind that lives in developers' heads but not in the code. TDP does not forbid temporal dependencies; it forbids *invisible* ones. An explicit `await`, a database transaction, a sequence number protocol—these are temporal coupling done right. A `sleep(100)` or "this is always fast enough"—these are temporal coupling done wrong.
+
+**The Core Insight:**
+> Correctness should be defined by **state transitions**, not elapsed time.
+
+When you can describe your system's correctness in terms of "X happens, then Y happens, then Z is true"—without mentioning milliseconds, clock readings, or "usually fast enough"—you have temporal decoupling.
+
+**Scope of Application:**
+
+TDP applies most strongly to:
+- Async code (promises, callbacks, event loops)
+- Concurrent workflows (threads, goroutines, actors)
+- Distributed systems (microservices, message queues, cross-region)
+- CI/test environments (variable load, different machines)
+
+TDP applies less strongly (or differently) to:
+- Single-threaded batch jobs with inherent sequencing
+- Embedded systems with deterministic schedulers
+- Tightly scoped transactional logic within a single database
+
+**Key practices:**
+
+**Surface Implicit Ordering:**
+- If operation B requires A to complete, make that dependency visible in code
+- Replace timing-based coordination (`sleep`, polling loops, "it's fast enough") with explicit synchronization
+- Document temporal assumptions that genuinely exist
+
+**Make Dependencies Explicit:**
+- Use explicit sequencing (`await`, state machines, ready-signals) not timing assumptions
+- Use causality-based ordering (sequence numbers, happens-before relationships) not wall-clock timestamps
+- Use idempotency keys and deduplication, not "it probably won't be called twice that fast"
+
+**Distinguish Control Time from Observe Time:**
+- **Control time** (deadlines, causality, ordering, expiration): Use logical clocks, injected time, sequence numbers, monotonic clocks
+- **Observe time** (metrics, logs, UX display, audit trails): Physical wall clocks are fine
+
+**Prefer Simple Designs Before Distributed Primitives:**
+When temporal coordination is needed, prefer solutions in this order:
+1. Single-writer designs (one component owns the data/decision)
+2. Monotonic/append-only structures (ordering is inherent)
+3. Database transactions (let the DB handle coordination)
+4. Explicit message ordering (sequence numbers, ordered queues)
+5. Distributed locks, consensus protocols, 2PC (use sparingly—operationally expensive)
+
+**Common Violations:**
+
+| Anti-pattern | Why It's Dangerous |
+|--------------|-------------------|
+| `sleep(100)` to "wait for X" | Works until X takes 101ms |
+| Assuming INSERT completes before SELECT | Race under concurrent load |
+| Relying on callback order | Event loop doesn't guarantee order |
+| `Date.now()` comparisons across services | Clock skew breaks comparison |
+| "This always completes before timeout" | Until it doesn't |
+| Order-dependent initialization | Works in dev, fails in parallel CI |
+
+**Relationship to Other Principles:**
+
+- **Idempotency (I)**: Idempotency handles "what if called twice"—TDP handles "what if the timing between calls varies." Both are needed for robust systems.
+- **Explicit Dependencies (EDP)**: Temporal dependencies ARE dependencies. If B requires A to complete, that's a dependency that should be visible, not implicit.
+- **Observability-First (OFP)**: Timing bugs are notoriously hard to debug without traces showing causality and latency. TDP + OFP enables diagnosis.
+- **Backpressure-First (BFP)**: BFP handles rate/volume; TDP handles timing/ordering. Together they address temporal concerns comprehensively.
+- **Design for Testability (DfT)**: Implicit temporal coupling is a primary cause of test flakiness. Explicit coupling with injected time enables deterministic testing.
+
+**Location:** [temporal-decoupling-principle](./temporal-decoupling-principle)
+
+**Files:**
+- [correct-implementation.js](./temporal-decoupling-principle/correct-implementation.js) - Shows proper temporal decoupling with explicit ready signals, async/await sequencing, sequence numbers for ordering, vector clocks for causality, explicit dependency graphs, optimistic locking, deterministic tests with injected time, and monotonic clocks for expiration
+- [violation.js](./temporal-decoupling-principle/violation.js) - Demonstrates implicit temporal coupling: sleep-based coordination, assumed database operation order, callback ordering assumptions, cross-machine timestamp comparison, order-dependent initialization, race conditions in concurrent updates, and flaky tests
+
+**Key Concept:**
+Violation: The system works because of implicit timing assumptions that live in developers' heads, not in code. `setTimeout(process, 100)` "ensures" data is ready. Service A is called before B because "that's how the controller works"—but nothing enforces it. Tests pass locally but flake in CI because timing varies. Two users updating the same record at "the same time" corrupt data because the code assumes sequential access. Distributed operations compare `Date.now()` across machines with skewed clocks. The system appears correct until load increases, latency spikes, or a GC pause hits at the wrong moment—then it fails mysteriously and unreproducibly.
+
+Correct: Temporal dependencies are explicit and enforceable. When B must follow A, there's an `await`, a transaction, or a state machine making that visible—not a timing assumption. Distributed operations use sequence numbers or version vectors for ordering, not timestamps. Tests inject controllable time and use explicit synchronization—no timing-dependent assertions. Concurrent updates use optimistic locking with conflict detection. When operations genuinely depend on timing (rate limiting, debouncing, real-time constraints), those requirements are documented, bounded, monitored, and tested under adverse conditions. The system's correctness can be reasoned about in terms of state transitions, not "usually fast enough." Implicit temporal coupling has been surfaced, and what remains is either eliminated or made explicit.
