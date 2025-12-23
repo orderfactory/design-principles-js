@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates 37 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 38 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -1149,3 +1149,114 @@ When step N depends on step N-1's output:
 Violation: The system treats operations as monolithic—either everything succeeds, or all progress is lost. A batch job processing 10,000 records keeps everything in memory and commits only at the end; a crash at record 9,999 loses all work. File uploads have no resume capability; a network hiccup at 95% means starting over. Database migrations run as single transactions that lock tables for hours and must restart completely on any failure. Multi-step order processing leaves the system in inconsistent state when payment succeeds but shipment fails—inventory reserved, money charged, but no order recorded. Users lose unsaved form data when sessions expire.
 
 Correct: Operations are designed for interruption from the start—but only where the cost-benefit justifies it. Batch jobs commit every N records and track the last-processed cursor; a crash at record 9,999 loses only records since the last checkpoint. File uploads use chunked protocols with resume tokens; reconnecting continues from the last confirmed chunk. Database migrations run per-table with a migration state tracker; failures affect only the current table. Order processing uses the saga pattern with compensation: each step records its completion, and failure triggers rollback of completed steps (release inventory, refund payment), returning the system to a valid state. Simpler workflows may use "mark failed + reconcile later" instead of full saga complexity. Forms auto-save drafts per field; session expiration loses nothing. Progress is observable, recovery strategy matches the consistency requirements, and the implementation cost is justified by the value of preserved progress. This approach trades implementation complexity for reliability—apply it where interruption is likely and lost work is expensive, not as a universal default.
+
+### 38. Recoverable Change Principle (RCP)
+
+Definition:
+Design significant system changes so the system can return to a known-good operational state quickly, safely, and without data loss—using rollback, compensating actions, or forward-fix—under real production conditions. At any point after deployment, either the previous production version must be able to run safely, or a documented recovery path must exist.
+
+Description:
+Software systems live or die by their ability to change safely. Yet most systems are designed only for the happy path where changes succeed. The Recoverable Change Principle inverts this: assume every change might need to be undone or compensated, and design recovery paths accordingly.
+
+This principle addresses the **asymmetry problem**: making a change is often fast and easy, while recovering from that change is slow, risky, or impossible. RCP requires that recovery be *at least* as safe and fast as the original change—ideally safer and faster.
+
+**Critical distinction: Rollback vs. Compensation vs. Forward-Fix**
+
+Not all changes can be literally reversed. RCP recognizes three recovery strategies:
+
+| Strategy | When Appropriate | Example |
+|----------|------------------|---------|
+| **Rollback** | Change is internally contained, no external effects | Revert code deployment, switch traffic back |
+| **Compensate** | External effects occurred that can't be undone | Refund payment, send correction email, credit account |
+| **Forward-fix** | Rollback would cause worse problems than fixing forward | Security patch with unintended side effect |
+
+The principle is satisfied when *at least one* recovery strategy is defined, tested, and executable within your recovery SLO.
+
+**The Real Invariant:**
+
+> *After any deployment, the previous production version must be able to run safely against the current state of all persistent stores—OR a documented, tested compensation path must exist.*
+
+**Core practices:**
+
+**Schema Changes: Forward-Compatible by Default**
+- The previous application version must run safely against the new schema
+- Prefer expand-contract over bidirectional migrations
+- Down migrations are *documentation*, not *safety*—they're rarely tested under production entropy
+- Test rollback scenarios with production-like data
+
+**Feature Flags: With Lifecycle Discipline**
+- Flags must have owners, expiration dates, and removal tickets created at birth
+- Gradual rollout with clear success/rollback criteria
+- Flags that survive beyond expiration require explicit justification
+- Treat flag removal as mandatory maintenance, not optional cleanup
+
+**API Evolution: With Exit Criteria**
+- Define deprecation timeline at introduction of new version
+- Instrument old version usage to know when removal is safe
+- Communicate removal dates to consumers with actionable migration paths
+- Document the signal that triggers compatibility removal
+
+**External Side Effects: Compensating Workflows**
+Some changes trigger irreversible external effects. For these, compensation is the recovery strategy:
+
+| External Effect | Compensation Strategy |
+|-----------------|----------------------|
+| Email sent | Send correction/retraction email |
+| Payment processed | Issue refund or credit |
+| Webhook fired | Send compensating event with correlation ID |
+| Third-party API called | Call reversal API or log for manual reconciliation |
+
+**The Recovery Test:**
+
+Before any significant deployment, answer these questions:
+1. Can we recover within our defined recovery SLO?
+2. Can the previous application version run safely right now?
+3. If not, what's our compensation path?
+4. Have we tested the recovery path with production-like conditions?
+5. Does recovery require coordination with other teams? *(If yes, it's not truly recoverable)*
+
+**The Organizational Litmus Test:**
+
+> *If recovery requires a meeting, the change is not recoverable.*
+
+Recoverable changes can be executed by the on-call engineer at 3 AM without waking up stakeholders.
+
+**Reversibility Debt:**
+
+Like technical debt, **reversibility debt** accumulates silently:
+- Migrations without forward-compatible schemas
+- Feature flags that became permanent forks
+- APIs supporting versions no one tracks
+- Compensation workflows that were never tested
+
+Track reversibility debt explicitly, audit recovery paths quarterly, and treat "unrecoverable deployment" as an incident worth reviewing.
+
+**Relationship to other principles:**
+
+- **Incremental Validity (IVP)**: IVP ensures *operations* can be interrupted safely; RCP ensures *deployments* can be recovered safely. IVP is runtime; RCP is release-time.
+- **Fail Fast (FF)**: FF detects problems quickly; RCP enables quick recovery. Together they minimize detection time AND recovery time.
+- **Idempotency (I)**: Idempotent operations enable safe retry AND safe compensation. RCP builds on idempotency for external effect recovery.
+- **Observability-First (OFP)**: You can only decide to recover if you can *see* something is wrong. OFP provides signals; RCP provides mechanisms.
+
+**When to apply RCP rigorously:**
+- Production deployments affecting persistent state
+- Schema migrations in databases with business data
+- API changes with external consumers
+- Features affecting payments, notifications, or legal state
+- Changes to security/access control
+
+**When NOT to apply:**
+- Security patches that close active vulnerabilities (forward-only by necessity)
+- Legal/compliance requirements with no rollback option
+- Trivial changes with no behavioral impact
+
+**Location:** [recoverable-change-principle](./recoverable-change-principle)
+
+**Files:**
+- [correct-implementation.js](./recoverable-change-principle/correct-implementation.js) - Shows proper RCP patterns: expand-contract migrations, feature flags with lifecycle management, compensating workflows for external effects, self-service recovery without coordination, API versioning with usage tracking, and reversibility debt tracking
+- [violation.js](./recoverable-change-principle/violation.js) - Demonstrates violations: destructive migrations breaking previous versions, feature flags without ownership or expiration, external effects without compensation, recovery requiring approvals and coordination, breaking API changes without deprecation, and accumulated reversibility debt
+
+**Key Concept:**
+Violation: Changes are deployed as one-way doors with theoretical recovery. Down migrations exist but have never been tested. Feature flags accumulate without lifecycle management—some are years old, owners long gone. APIs maintain backward compatibility indefinitely, with no tracking of whether anyone uses old versions. External effects (emails, webhooks, payments) have no compensation path—mistakes require manual customer service intervention. When problems emerge at 3 AM, the on-call engineer discovers that "rolling back" requires waking up the database team, coordinating with partner integrations, and getting VP approval. MTTR stretches to hours. The post-incident review reveals the same finding as last time: *"we couldn't roll back because..."*
+
+Correct: Every significant change ships with a tested recovery strategy—rollback, compensation, or explicit forward-only justification. Schema changes follow expand-contract; the previous application version can always run safely. Feature flags have owners, expiration dates, and removal tickets created at birth; stale flags are treated as incidents. APIs have deprecation timelines with usage instrumentation; compatibility ends when the signal says it's safe. External effects have compensating workflows as well-tested as the happy path. Recovery can be executed by any on-call engineer without coordination. Reversibility debt is tracked, audited, and paid down. When problems emerge, recovery is a measured response executed in minutes—not a crisis requiring organizational mobilization. The principle recognizes that not everything can be literally undone, but everything can be *recovered from* through rollback, compensation, or (when truly necessary) forward-fix.
