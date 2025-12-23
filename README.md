@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates 38 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 39 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -1260,3 +1260,118 @@ Track reversibility debt explicitly, audit recovery paths quarterly, and treat "
 Violation: Changes are deployed as one-way doors with theoretical recovery. Down migrations exist but have never been tested. Feature flags accumulate without lifecycle management—some are years old, owners long gone. APIs maintain backward compatibility indefinitely, with no tracking of whether anyone uses old versions. External effects (emails, webhooks, payments) have no compensation path—mistakes require manual customer service intervention. When problems emerge at 3 AM, the on-call engineer discovers that "rolling back" requires waking up the database team, coordinating with partner integrations, and getting VP approval. MTTR stretches to hours. The post-incident review reveals the same finding as last time: *"we couldn't roll back because..."*
 
 Correct: Every significant change ships with a tested recovery strategy—rollback, compensation, or explicit forward-only justification. Schema changes follow expand-contract; the previous application version can always run safely. Feature flags have owners, expiration dates, and removal tickets created at birth; stale flags are treated as incidents. APIs have deprecation timelines with usage instrumentation; compatibility ends when the signal says it's safe. External effects have compensating workflows as well-tested as the happy path. Recovery can be executed by any on-call engineer without coordination. Reversibility debt is tracked, audited, and paid down. When problems emerge, recovery is a measured response executed in minutes—not a crisis requiring organizational mobilization. The principle recognizes that not everything can be literally undone, but everything can be *recovered from* through rollback, compensation, or (when truly necessary) forward-fix.
+
+### 39. Blast Radius Containment Principle (BRCP)
+
+Definition:
+Design systems so that when any component fails, the impact is contained to the smallest *business-meaningful* scope. Failures should be isolated by domain, tenant, request, or feature—remaining highly visible—while never trading correctness or safety for availability.
+
+Description:
+Modern systems are composed of many interacting components, services, and dependencies. When one piece fails, the natural tendency is for that failure to propagate—a slow database query blocks the request handler, which exhausts the thread pool, which makes the load balancer think the service is down, which triggers cascading failures across the cluster.
+
+The Blast Radius Containment Principle inverts the default: assume components WILL fail, and design boundaries that prevent failures from spreading. Like watertight compartments in a ship, each isolation boundary contains damage to a small area while the rest of the system continues operating.
+
+**What BRCP is NOT:**
+BRCP is not a novel invention—it's a synthesis of bulkheads, failure domains, fault isolation, and cell-based architecture into an explicit, testable design principle. What makes BRCP distinct is not novelty but *emphasis*: making "where does failure stop?" a first-class design question that teams must answer deliberately, not discover during incidents.
+
+**Critical Distinction: Availability Failures vs. Correctness Failures**
+
+BRCP applies to **availability failures**—component outages, slow dependencies, resource exhaustion, capacity issues. For these, containment and graceful degradation are appropriate.
+
+BRCP does **not** apply to **correctness or safety failures**:
+- Security breaches (propagate alerts, not containment)
+- Data corruption (stop processing, not isolate and continue)
+- Invariant violations (fail loudly, not gracefully)
+- Regulatory/financial correctness issues (halt, not degrade)
+
+When correctness is at stake, the right behavior may be *stop everything*. Containment is for availability; fail-fast is for correctness.
+
+Key practices:
+
+**Isolate by Tenant/User:**
+- One customer's pathological query shouldn't affect other customers
+- Use separate connection pools, rate limits, or queues per tenant
+- Apply per-tenant circuit breakers for shared resources
+
+**Isolate by Feature:**
+- Failure in the recommendation engine shouldn't break checkout
+- Critical paths should have independent resource pools
+- Non-critical features should fail without blocking core functionality
+
+**Isolate by Request:**
+- One slow request shouldn't starve others
+- Apply timeouts at every boundary
+- Use bulkheads (separate thread pools) for different request types
+
+**Isolate by Dependency:**
+- One downstream service failing shouldn't take down the caller
+- Circuit breakers prevent cascading timeout exhaustion
+- Fallback behaviors for each external dependency
+
+**Shared State: The Hidden Blast Radius Multiplier**
+
+Many systems appear isolated at the service layer but share:
+- **Databases**: One tenant's table lock affects all tenants
+- **Caches**: Cache poisoning or eviction storms propagate instantly
+- **Message brokers**: One slow consumer blocks the entire topic
+- **Configuration stores**: One bad config flag takes down everything
+- **Identity providers**: Auth service failure locks out everyone
+
+These are often the *true* blast radius multipliers. A system with perfect service isolation but a shared database connection pool has *no real isolation*. Audit shared state ruthlessly.
+
+**Human and Process Blast Radius**
+
+Technical isolation is necessary but not sufficient. Real outages often propagate through:
+- **Shared on-call rotations**: One team's incident exhausts everyone's capacity
+- **Centralized deployment pipelines**: One bad deploy affects all services
+- **Global config flags**: One toggle change affects all tenants
+- **One-click admin actions**: "Update all users" with no confirmation
+
+A perfectly isolated system can still have massive blast radius if humans can accidentally affect everything at once.
+
+**Blast Radius Levels:**
+
+| Level | Scope | Example Isolation Mechanism |
+|-------|-------|---------------------------|
+| **Micro** | Single request | Request timeout, context cancellation |
+| **Small** | Single user/tenant | Per-tenant rate limits, tenant-specific pools |
+| **Medium** | Single feature | Feature flags, bulkheads, circuit breakers |
+| **Large** | Single service instance | Health checks, load balancer removal |
+| **System** | Single datacenter/region | Multi-region failover, cell architecture |
+
+**Cost Awareness: Containment Has a Price**
+
+Isolation is not free. Per-tenant pools, bulkheads, and circuit breakers everywhere can lead to resource fragmentation, operational complexity, and cost explosion. Design containment where failure would be unacceptable, not everywhere by default. Isolation investment should be proportional to business impact, failure frequency, and recovery difficulty.
+
+**Containment Without Visibility Is Failure Concealment**
+
+Excellent containment can mask systemic problems—a dependency fails constantly, but circuit breakers keep the system limping. This is not resilience—it's hiding rot. Every containment mechanism must emit metrics; degraded modes should be time-bounded or alarmed. Containment should *shorten MTTR*, not merely reduce immediate pain.
+
+**The Containment Test:**
+
+A system exhibits good blast radius containment if:
+1. Any single dependency can fail without causing total system failure
+2. One user's pathological behavior can't impact other users
+3. Non-critical features can be disabled without affecting critical paths
+4. Failures are *visible* and contained, not hidden and spreading
+5. Shared state has been audited and doesn't undermine service isolation
+
+**Relationship to other principles:**
+
+- **Graceful Degradation (GD)**: GD says "keep working when things fail." BRCP says "contain the failure to a small scope." BRCP limits WHO is affected; GD limits HOW MUCH they're affected.
+- **Backpressure-First (BFP)**: BFP prevents overload from accumulating. BRCP prevents overload from spreading. Together they create resilient systems.
+- **High Cohesion/Low Coupling (HCLC)**: HCLC creates the structural preconditions for BRCP—loosely coupled components have natural isolation boundaries.
+- **Observability-First (OFP)**: You can only contain what you can see. OFP detects failures; BRCP contains them. Without OFP, BRCP becomes failure concealment.
+- **Recoverable Change (RCP)**: RCP limits the blast radius of *changes*. BRCP limits the blast radius of *failures*. Together they create systems that are safe to change and safe to run.
+- **Fail Fast (FF)**: FF says "detect errors immediately." BRCP says "contain them locally." For availability failures, contain. For correctness failures, fail fast and propagate.
+
+**Location:** [blast-radius-containment-principle](./blast-radius-containment-principle)
+
+**Files:**
+- [correct-implementation.js](./blast-radius-containment-principle/correct-implementation.js) - Shows proper containment with per-tenant connection pools, circuit breakers with observability, feature isolation with graceful degradation, isolated cache namespaces, request bulkheads, admin safeguards, and observable degradation
+- [violation.js](./blast-radius-containment-principle/violation.js) - Demonstrates cascading failures: shared connection pools where one tenant blocks all, no circuit breakers causing timeout exhaustion, non-critical failures breaking critical paths, shared state undermining isolation, silent degradation hiding problems
+
+**Key Concept:**
+Violation: A shared database connection pool serves all tenants; one tenant's runaway query exhausts all connections, blocking all other tenants. A single external service timeout cascades through the system because there's no circuit breaker. The recommendation service throws an exception that propagates to the order page, preventing purchases. Circuit breakers hide a dependency that's been failing for weeks—nobody notices until it's completely dead. An admin clicks "update all users" and corrupts every account. The system appears isolated at the service layer, but every service shares the same Redis cluster—one key pattern causes a thundering herd that takes down everything.
+
+Correct: Containment boundaries align with business risk, not theoretical purity. Per-tenant connection pools contain one tenant's query storms; circuit breakers trip and emit metrics when degraded mode persists too long. The recommendation widget catches its errors and renders "popular items" instead, while checkout proceeds normally. Shared state is audited: the cache is partitioned by service namespace. Admin tools require confirmation for bulk actions and stage changes with gradual rollout. Every containment mechanism has observability, recovery paths, and exit criteria. Failures stay small, visible, and temporary—not hidden and festering. For availability failures, contain and degrade gracefully; for correctness failures, fail fast and propagate. The blast radius is contained to the affected scope, and operators have clear visibility into degraded state.
