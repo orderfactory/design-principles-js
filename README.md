@@ -124,28 +124,28 @@ The Tell Don't Ask principle suggests that objects should tell other objects wha
 **Key Concept:**
 The Tell Don't Ask principle is violated when objects expose their internal state and other objects make decisions based on that state. In the violation example, a shopping cart exposes its items and discount rate, and an order processor asks for this state to perform calculations that should be encapsulated in the cart. The correct implementation encapsulates behavior within objects and has objects tell other objects what to do, promoting better encapsulation and reducing coupling.
 
-### 10. Convention over Configuration (CoC)
+### 10. Convention over Configuration (COC)
 
 The Convention over Configuration principle suggests that software should use sensible defaults and follow established conventions, reducing the need for explicit configuration. This makes development faster and easier by minimizing the number of decisions developers need to make.
 
 **Location:** [convention-over-configuration-principle](./convention-over-configuration-principle)
 
 **Files:**
-- [correct-implementation.js](./convention-over-configuration-principle/correct-implementation.js) - Shows a proper implementation of CoC using a form validation library that automatically determines validation rules based on naming conventions
-- [violation.js](./convention-over-configuration-principle/violation.js) - Demonstrates a violation of CoC where every aspect of the system requires explicit configuration, even for common patterns
+- [correct-implementation.js](./convention-over-configuration-principle/correct-implementation.js) - Shows a proper implementation of COC using a form validation library that automatically determines validation rules based on naming conventions
+- [violation.js](./convention-over-configuration-principle/violation.js) - Demonstrates a violation of COC where every aspect of the system requires explicit configuration, even for common patterns
 
 **Key Concept:**
 The Convention over Configuration principle is violated when software requires explicit configuration for every aspect, even when following common patterns that could be inferred through conventions. In the violation example, a form validation library requires developers to explicitly configure every validation rule for every field, creating unnecessary complexity and verbosity. The correct implementation uses naming conventions to automatically determine validation rules, providing sensible defaults and only requiring explicit configuration for exceptions to the conventions, making the code more concise, maintainable, and developer-friendly.
 
-### 11. Law of Demeter (LoD)
+### 11. Law of Demeter (LOD)
 
-The Law of Demeter (LoD), also known as the "Principle of Least Knowledge" or "Don't Talk to Strangers," states that an object should only interact with its immediate collaborators and not with the "neighbors of neighbors." This promotes loose coupling and better encapsulation.
+The Law of Demeter (LOD), also known as the "Principle of Least Knowledge" or "Don't Talk to Strangers," states that an object should only interact with its immediate collaborators and not with the "neighbors of neighbors." This promotes loose coupling and better encapsulation.
 
 **Location:** [law-of-demeter-principle](./law-of-demeter-principle)
 
 **Files:**
-- [correct-implementation.js](./law-of-demeter-principle/correct-implementation.js) - Shows a proper implementation of LoD using a customer order system where objects only interact with their immediate collaborators
-- [violation.js](./law-of-demeter-principle/violation.js) - Demonstrates a violation of LoD where objects directly access and manipulate the internal components of other objects
+- [correct-implementation.js](./law-of-demeter-principle/correct-implementation.js) - Shows a proper implementation of LOD using a customer order system where objects only interact with their immediate collaborators
+- [violation.js](./law-of-demeter-principle/violation.js) - Demonstrates a violation of LOD where objects directly access and manipulate the internal components of other objects
 
 **Key Concept:**
 The Law of Demeter is violated when an object accesses the internal components of another object and then calls methods on those components ("talking to strangers"). In the violation example, an OrderProcessor directly accesses a customer's wallet and address objects and manipulates them, creating tight coupling between classes. The correct implementation encapsulates these interactions within the Customer class, which acts as a mediator, ensuring that each object only interacts with its immediate collaborators, making the system more maintainable and adaptable to change.
@@ -163,15 +163,15 @@ The Composition over Inheritance principle suggests that you should favor object
 **Key Concept:**
 The Composition over Inheritance principle is violated when code relies heavily on inheritance hierarchies to reuse code and create specialized types. In the violation example, a game character system uses deep inheritance to create different character types, leading to code duplication, rigid hierarchies, and exponential growth of classes as new abilities are added. The correct implementation uses composition to create characters by combining simple, focused ability components, making the code more flexible, eliminating duplication, and allowing for easy creation of characters with arbitrary combinations of abilities.
 
-### 13. Principle of Least Astonishment (PoLA)
+### 13. Principle of Least Astonishment (POLA)
 
 The Principle of Least Astonishment states that a component of a system should behave in a way that users expect it to behave, reducing surprise or astonishment when they interact with it. This principle is about designing intuitive interfaces that align with users' mental models.
 
 **Location:** [principle-of-least-astonishment](./principle-of-least-astonishment)
 
 **Files:**
-- [correct-implementation.js](./principle-of-least-astonishment/correct-implementation.js) - Shows a proper implementation of PoLA using intuitive function behavior with consistent parameter ordering, clear naming, and expected return values
-- [violation.js](./principle-of-least-astonishment/violation.js) - Demonstrates a violation of PoLA with functions that behave in surprising or counterintuitive ways
+- [correct-implementation.js](./principle-of-least-astonishment/correct-implementation.js) - Shows a proper implementation of POLA using intuitive function behavior with consistent parameter ordering, clear naming, and expected return values
+- [violation.js](./principle-of-least-astonishment/violation.js) - Demonstrates a violation of POLA with functions that behave in surprising or counterintuitive ways
 
 **Key Concept:**
 The Principle of Least Astonishment is violated when code behaves in ways that surprise or confuse users. In the violation example, functions and methods have misleading names, inconsistent parameter ordering, unexpected return values, and hidden side effects that modify data unexpectedly. The correct implementation follows established conventions with intuitive method names, consistent parameter ordering, predictable return values, and no surprising side effects, making the code more intuitive, easier to use correctly, and less prone to bugs caused by misunderstandings.
@@ -219,15 +219,15 @@ The Occam's Razor Principle states that "entities should not be multiplied witho
 **Key Concept:**
 The Occam's Razor principle is violated when solutions are made more complex than necessary, with unnecessary abstractions, features, or patterns that don't provide real benefits for the current requirements. In the violation example, a simple text formatter is over-engineered with class hierarchies, factory patterns, caching mechanisms, and analytics features that aren't needed. The correct implementation solves the same problem with a simple, straightforward approach that's easy to understand and maintain, demonstrating that the simplest solution that meets the requirements is usually the best one.
 
-### 17. Separation of Concerns Principle (SoC)
+### 17. Separation of Concerns Principle (SOC)
 
 The Separation of Concerns principle states that a program should be divided into distinct sections, where each section addresses a separate concern. A concern is a set of information that affects the code of a computer program. This principle improves maintainability, reusability, and testability by ensuring that different aspects of the application are independent of each other.
 
 **Location:** [separation-of-concerns-principle](./separation-of-concerns-principle)
 
 **Files:**
-- [correct-implementation.js](./separation-of-concerns-principle/correct-implementation.js) - Shows a proper implementation of SoC using a user management system with clear separation between data model, data access, business logic, and presentation
-- [violation.js](./separation-of-concerns-principle/violation.js) - Demonstrates a violation of SoC with a monolithic class that mixes multiple concerns together
+- [correct-implementation.js](./separation-of-concerns-principle/correct-implementation.js) - Shows a proper implementation of SOC using a user management system with clear separation between data model, data access, business logic, and presentation
+- [violation.js](./separation-of-concerns-principle/violation.js) - Demonstrates a violation of SOC with a monolithic class that mixes multiple concerns together
 
 **Key Concept:**
 The Separation of Concerns principle is violated when different concerns (like data storage, business logic, and presentation) are mixed together in the same components. In the violation example, a monolithic UserManager class handles data structure, storage, business logic, presentation, and even email functionality, making the code difficult to understand, test, and maintain. The correct implementation separates these concerns into distinct classes (User, UserRepository, UserService, and UserView), each with a single responsibility, making the code more modular, easier to understand, and simpler to maintain.
@@ -284,15 +284,15 @@ Modularity is the practice of organizing code into separate, independent modules
 **Key Concept:**
 The Modularity principle is violated when code is not properly separated into independent modules with clear interfaces. In the violation example, an e-commerce application is implemented as a monolithic object with all functionality (products, cart, orders, UI) mixed together, leading to tight coupling, low cohesion, and difficulty in maintenance and testing. The correct implementation separates the application into distinct modules (ProductModule, CartModule, OrderModule), each with a single responsibility and well-defined interfaces, making the code more maintainable, reusable, and testable.
 
-### 22. Design for Testability Principle (DfT)
+### 22. Design for Testability Principle (DFT)
 
 Design for Testability is a software design principle that emphasizes creating code that can be easily and thoroughly tested. Systems should be built so they can be easily and reliably tested, which often means writing modular, loosely-coupled code and providing hooks for automated tests.
 
 **Location:** [design-for-testability-principle](./design-for-testability-principle)
 
 **Files:**
-- [correct-implementation.js](./design-for-testability-principle/correct-implementation.js) - Shows a proper implementation of DfT using an authentication service with dependency injection and clear separation of concerns
-- [violation.js](./design-for-testability-principle/violation.js) - Demonstrates a violation of DfT with a tightly coupled authentication service that is difficult to test
+- [correct-implementation.js](./design-for-testability-principle/correct-implementation.js) - Shows a proper implementation of DFT using an authentication service with dependency injection and clear separation of concerns
+- [violation.js](./design-for-testability-principle/violation.js) - Demonstrates a violation of DFT with a tightly coupled authentication service that is difficult to test
 
 **Key Concept:**
 The Design for Testability principle is violated when code is written in a way that makes it difficult or impossible to test in isolation. In the violation example, an authentication service has hard-coded dependencies, no separation of concerns, hidden side effects, and direct access to global state, making it nearly impossible to test specific behaviors without complex setup. The correct implementation uses dependency injection, clear separation of concerns, and well-defined interfaces to create a system that can be easily tested with mock objects, allowing for comprehensive unit tests that verify behavior in isolation.
@@ -336,15 +336,15 @@ The Command-Query Separation principle states that every method should be either
 **Key Concept:**
 The Command-Query Separation principle is violated when methods both change state and return values, creating side effects that make code harder to understand, test, and maintain. In the violation example, a bank account implementation has methods that both modify the account state and return information about that state, leading to unpredictable behavior and making it difficult to reason about the code. The correct implementation clearly separates commands (deposit, withdraw) from queries (getBalance, getTransactionHistory), making the code more predictable, easier to test, and simpler to maintain.
 
-### 26. Design by Contract Principle (DbC)
+### 26. Design by Contract Principle (DBC)
 
 Design by Contract is a software design approach where components have formal, precise, and verifiable interface specifications in the form of preconditions, postconditions, and invariants. Preconditions specify what must be true before a method executes, postconditions specify what must be true after a method executes, and invariants specify what must remain true throughout the execution of a method.
 
 **Location:** [design-by-contract-principle](./design-by-contract-principle)
 
 **Files:**
-- [correct-implementation.js](./design-by-contract-principle/correct-implementation.js) - Shows a proper implementation of DbC using a bank account system with explicit contracts for each method
-- [violation.js](./design-by-contract-principle/violation.js) - Demonstrates a violation of DbC with missing or incomplete contracts and inconsistent error handling
+- [correct-implementation.js](./design-by-contract-principle/correct-implementation.js) - Shows a proper implementation of DBC using a bank account system with explicit contracts for each method
+- [violation.js](./design-by-contract-principle/violation.js) - Demonstrates a violation of DBC with missing or incomplete contracts and inconsistent error handling
 
 **Key Concept:**
 The Design by Contract principle is violated when code lacks explicit contracts, has incomplete precondition checks, fails to enforce postconditions, or doesn't maintain object invariants. In the violation example, a bank account implementation has missing or incomplete precondition checks, no postcondition verification, and allows the object to enter invalid states, leading to unpredictable behavior and data integrity issues. The correct implementation explicitly defines and enforces contracts for each method, with clear preconditions, postconditions, and invariants, making the code more reliable, self-documenting, and easier to debug when issues arise.
@@ -569,7 +569,7 @@ In some internal, tightly-coupled systems where components are deployed atomical
 However, even these cases benefit from assertions to catch bugs. Relaxing validation is an optimization—measure before optimizing, and never relax validation on external-facing or security-critical boundaries.
 
 Contrast with related principles:
-- **Design by Contract**: DbC assumes parties honor contracts within trusted code boundaries. Boundary Defense assumes no boundary is truly trusted—contracts must be enforced, not assumed.
+- **Design by Contract**: DBC assumes parties honor contracts within trusted code boundaries. Boundary Defense assumes no boundary is truly trusted—contracts must be enforced, not assumed.
 - **Fail Fast**: Broader principle about catching errors early anywhere. Boundary Defense is a specific application: catch invalid data at interfaces before it propagates.
 - **Postel's Robustness Principle**: "Be liberal in what you accept, conservative in what you send." Boundary Defense **deliberately reverses** this for security-critical paths—favoring strict validation over interoperability tolerance. The tradeoff: Postel optimizes for flexibility and resilience against benign variance; Boundary Defense optimizes against malicious or corrupted input. In modern security contexts, precision trumps permissiveness.
 
@@ -723,7 +723,7 @@ Relationship to other principles (synergy):
 
 - **Backpressure-First (BFP)**: Apply backpressure to processes—don't accept low-quality PRs beyond system capacity. If code review bandwidth is limited, hold PRs with hygiene issues until cleaned, preventing quality overload.
 
-- **Design by Contract (DbC)**: Both enforce invariants; DbC does so at runtime via preconditions/postconditions, VIP does so at build time via linting and standards. DbC guards correctness, VIP guards maintainability.
+- **Design by Contract (DBC)**: Both enforce invariants; DBC does so at runtime via preconditions/postconditions, VIP does so at build time via linting and standards. DBC guards correctness, VIP guards maintainability.
 
 - **Meaningful Naming (MN)**: VIP ensures naming standards are enforced automatically, not just recommended. Without VIP, MN remains aspiration; with VIP, MN becomes practice.
 
@@ -824,7 +824,7 @@ Transitioning from hidden to explicit dependencies can be done incrementally:
 **Contrast with related principles:**
 
 - **Dependency Inversion (DIP)**: DIP says *what* to depend on (abstractions, not concretions). EDP says *how* to receive dependencies (explicitly, not implicitly). You can follow DIP while violating EDP.
-- **Design for Testability (DfT)**: EDP is arguably the single most impactful practice for testability. Explicit dependencies can be replaced with test doubles trivially.
+- **Design for Testability (DFT)**: EDP is arguably the single most impactful practice for testability. Explicit dependencies can be replaced with test doubles trivially.
 - **High Cohesion/Low Coupling (HCLC)**: EDP makes coupling *visible*. A component with many explicit dependencies has high coupling—now you can see it and address it.
 
 **Location:** [explicit-dependencies-principle](./explicit-dependencies-principle)
@@ -838,7 +838,7 @@ Violation: Hidden dependencies through global state, singletons, service locator
 
 Correct: Explicit dependencies declared in constructors and parameters make code honest about its requirements. The correct implementation's constructor clearly states all dependencies (repositories, services, config, infrastructure context). Tests easily substitute fake implementations—time and IDs are deterministic, interactions are verifiable, and no global state pollution occurs. The composition root centralizes wiring while keeping business logic clean. Apply EDP rigor proportionally: heavy business dependencies always explicit, lightweight cross-cutting concerns may use controlled ambient patterns. When EDP reveals parameter explosion, address the underlying cohesion problem. This approach enables true unit testing, safe refactoring, and clear understanding of component requirements—fundamental enablers for scalable, robust, maintainable, high-quality software.
 
-### 36. Locality of Behavior Principle (LoBP)
+### 36. Locality of Behavior Principle (LOBP)
 
 Definition:
 Design systems so that understanding "what happens when X" requires minimal navigational distance within well-defined boundaries. Optimize for traceability and cognitive proximity—the ability to follow cause to effect through a clear, explicit path—not for minimal file count or maximal colocation.
@@ -848,7 +848,7 @@ As systems grow, behavior naturally fragments across files through abstraction l
 
 The Locality of Behavior Principle pushes back: optimize for comprehension. When a developer asks "what happens when a user places an order?", they should be able to follow a clear, traceable path—not grep through the entire codebase hoping to find all the pieces. Code is read far more often than it's written, and debugging scattered behavior is one of the most time-consuming activities in software maintenance.
 
-**Critical constraint:** Locality applies within well-defined boundaries—a module, bounded context, or feature. LoBP is not permission to collapse domain boundaries or create god objects. Think of locality as reducing navigational distance within a neighborhood, not eliminating neighborhoods entirely.
+**Critical constraint:** Locality applies within well-defined boundaries—a module, bounded context, or feature. LOBP is not permission to collapse domain boundaries or create god objects. Think of locality as reducing navigational distance within a neighborhood, not eliminating neighborhoods entirely.
 
 **The Locality Gradient:**
 
@@ -894,7 +894,7 @@ Rule of thumb: Events are most damaging to locality when they control core busin
 
 **Acceptable vs Dangerous Duplication:**
 
-LoBP exists in tension with DRY, but not all duplication is equal:
+LOBP exists in tension with DRY, but not all duplication is equal:
 
 - **Orchestration and flow** (how steps are sequenced): Low risk—often acceptable; flows may evolve independently
 - **Business rules and policies**: High risk—dangerous; divergence causes bugs; centralize
@@ -928,12 +928,12 @@ A codebase exhibits healthy locality if:
 
 Contrast with related principles:
 
-| Principle | Relationship to LoBP |
+| Principle | Relationship to LOBP |
 |-----------|---------------------|
-| **Separation of Concerns** | SoC defines boundaries; LoBP optimizes within them |
+| **Separation of Concerns** | SOC defines boundaries; LOBP optimizes within them |
 | **High Cohesion** | Cohesion is about focus; locality is about navigational proximity |
-| **DRY** | LoBP may accept orchestration duplication; never duplicate invariants |
-| **Single Level of Abstraction** | SLAP is about vertical consistency; LoBP is about horizontal traceability |
+| **DRY** | LOBP may accept orchestration duplication; never duplicate invariants |
+| **Single Level of Abstraction** | SLAP is about vertical consistency; LOBP is about horizontal traceability |
 
 **Location:** [locality-of-behavior-principle](./locality-of-behavior-principle)
 
@@ -1117,7 +1117,7 @@ When step N depends on step N-1's output:
 - **Observability-First (OFP)**: **Required foundation.** IVP benefits from checkpoint events, progress metrics, and resumption logs. Without observability, debugging partial failures is guesswork.
 - **Fail Fast (FF)**: IVP doesn't contradict FF—fail fast when detecting errors, but preserve completed work before failing.
 - **Graceful Degradation (GD)**: GD keeps services running despite failures; IVP keeps *progress* safe despite interruptions. Complementary.
-- **Design by Contract (DbC)**: DbC invariants should hold at every checkpoint, not just at operation start/end.
+- **Design by Contract (DBC)**: DBC invariants should hold at every checkpoint, not just at operation start/end.
 - **Explicit Dependencies (EDP)**: State required for resumption is a dependency—make it explicit and injectable for testing.
 
 **When NOT to apply IVP:**
@@ -1445,7 +1445,7 @@ When temporal coordination is needed, prefer solutions in this order:
 - **Explicit Dependencies (EDP)**: Temporal dependencies ARE dependencies. If B requires A to complete, that's a dependency that should be visible, not implicit.
 - **Observability-First (OFP)**: Timing bugs are notoriously hard to debug without traces showing causality and latency. TDP + OFP enables diagnosis.
 - **Backpressure-First (BFP)**: BFP handles rate/volume; TDP handles timing/ordering. Together they address temporal concerns comprehensively.
-- **Design for Testability (DfT)**: Implicit temporal coupling is a primary cause of test flakiness. Explicit coupling with injected time enables deterministic testing.
+- **Design for Testability (DFT)**: Implicit temporal coupling is a primary cause of test flakiness. Explicit coupling with injected time enables deterministic testing.
 
 **Location:** [temporal-decoupling-principle](./temporal-decoupling-principle)
 
@@ -1547,7 +1547,7 @@ FIP can be misused to create **complexity theater**—elaborate status systems t
 - **Observability-First (OFP)**: OFP provides mechanisms (logs, metrics, traces). FIP ensures what's observed is truthful. You can have excellent observability that lies.
 - **Fail Fast (FF)**: FF detects errors quickly. FIP communicates them honestly—including "detected but cause unknown."
 - **Graceful Degradation (GD)**: GD maintains partial functionality. FIP ensures degradation is honestly reported, not hidden.
-- **Design by Contract (DbC)**: DbC defines what operations should do. FIP requires that reported outcomes match actual outcomes *relative to that contract*.
+- **Design by Contract (DBC)**: DBC defines what operations should do. FIP requires that reported outcomes match actual outcomes *relative to that contract*.
 - **Explicit Dependencies (EDP)**: EDP makes dependencies visible. FIP makes dependency *status* visible—including when it's unknown.
 
 **When to Apply FIP Rigorously:**
