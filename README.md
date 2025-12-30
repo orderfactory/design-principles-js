@@ -1,6 +1,6 @@
 # Design Principles in JavaScript
 
-This project demonstrates 40 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
+This project demonstrates 41 well-established programming design principles in JavaScript. Each principle is organized in its own folder with two JavaScript files:
 
 1. A file demonstrating the correct implementation of the principle
 2. A file demonstrating a violation of the principle
@@ -1457,3 +1457,119 @@ When temporal coordination is needed, prefer solutions in this order:
 Violation: The system works because of implicit timing assumptions that live in developers' heads, not in code. `setTimeout(process, 100)` "ensures" data is ready. Service A is called before B because "that's how the controller works"—but nothing enforces it. Tests pass locally but flake in CI because timing varies. Two users updating the same record at "the same time" corrupt data because the code assumes sequential access. Distributed operations compare `Date.now()` across machines with skewed clocks. The system appears correct until load increases, latency spikes, or a GC pause hits at the wrong moment—then it fails mysteriously and unreproducibly.
 
 Correct: Temporal dependencies are explicit and enforceable. When B must follow A, there's an `await`, a transaction, or a state machine making that visible—not a timing assumption. Distributed operations use sequence numbers or version vectors for ordering, not timestamps. Tests inject controllable time and use explicit synchronization—no timing-dependent assertions. Concurrent updates use optimistic locking with conflict detection. When operations genuinely depend on timing (rate limiting, debouncing, real-time constraints), those requirements are documented, bounded, monitored, and tested under adverse conditions. The system's correctness can be reasoned about in terms of state transitions, not "usually fast enough." Implicit temporal coupling has been surfaced, and what remains is either eliminated or made explicit.
+
+### 41. Feedback Integrity Principle (FIP)
+
+Definition:
+Every operation should communicate outcomes that are **honest about scope** (what the system actually knows), **appropriate to audience** (operators need different truth than users), and **bounded by contract** (success is defined relative to stated responsibility, not global certainty). Systems should never claim more certainty than they possess, but neither should they manufacture false precision to appear rigorous.
+
+Description:
+The Feedback Integrity Principle addresses the gap between what systems *report* and what actually *happened*. This dishonesty—often unintentional—creates cascading reliability problems: callers believe operations succeeded when they were merely acknowledged, operators trust health checks that report "healthy" while the system fails silently, and monitoring shows green while users experience red.
+
+However, FIP is a **corrective principle, not an absolute mandate**. Its goal is to eliminate *deception*—not to demand *omniscience*. In distributed systems, certainty is often impossible. FIP requires that uncertainty be surfaced honestly, not that it be resolved.
+
+**The Core Insight:**
+> Systems must not lie about what they know, don't know, or haven't done—but they are not required to know everything.
+
+Key practices:
+
+**Define Success Relative to Contract Boundaries:**
+- Every operation should explicitly define what "success" means at its boundary
+- "Successfully enqueued" is honest; "successfully processed" (when you only enqueued) is not
+- Success means "this system fulfilled its stated responsibility"—not "all downstream effects completed"
+- Document where responsibility ends: "This API guarantees durable write; delivery to consumers is best-effort"
+
+**Distinguish Certainty from Speculation:**
+- Report what the system *actually knows*, not what it *infers*
+- "Timeout contacting payment service" is honest; "payment failed" (when you don't know) is speculation
+- If the system doesn't know *why* something failed, it must say so—not invent a plausible cause
+- False precision is still dishonesty: detailed-sounding statuses that exceed actual knowledge erode trust
+
+**Layer Truth by Audience:**
+Same underlying facts, different projections for different consumers:
+
+| Audience | Appropriate Truth |
+|----------|------------------|
+| **End users** | Actionable status: "Your order is being processed" (not "shard 7 timeout") |
+| **API clients** | Structured status with retry guidance: 202 Accepted with status endpoint |
+| **Operators** | Full diagnostic context: dependency timeouts, queue depths, error codes |
+| **Automation** | Machine-parseable signals: health probes, metrics, structured logs |
+
+No layer should *contradict* another—but abstraction levels differ. Users don't need shard IDs; operators do.
+
+**Embrace Evolving Truth:**
+Feedback isn't always final. Systems often revise understanding over time:
+- Initial: "Accepted for processing"
+- Intermediate: "Processing in progress (3 of 5 steps complete)"
+- Final: "Completed successfully" or "Failed: insufficient inventory"
+- Correction: "Previously reported success was incorrect; compensation applied"
+
+When later truth contradicts earlier provisional truth, acknowledge it openly.
+
+**Accept Honest Uncertainty Over False Confirmation:**
+- "Status: unknown (timeout)" is more honest than "Status: success (probably)"
+- "Health: degraded (cache miss rate elevated)" is more honest than "Health: OK"
+- "Error: upstream returned unexpected response" is more honest than "Error: invalid input"
+
+**The Honesty Test:**
+
+A system exhibits feedback integrity if:
+1. Success/failure is defined relative to explicit contract boundaries
+2. Reported certainty never exceeds actual knowledge
+3. Different audiences receive appropriate (not contradictory) truth levels
+4. Uncertainty is surfaced, not hidden behind false confidence
+5. Evolving truth is communicated openly, not silently revised
+
+**Common Violations:**
+
+| Anti-pattern | Why It Violates FIP |
+|--------------|---------------------|
+| Returning 200 for queued work | Claims completion beyond contract boundary |
+| Health check that only checks process liveness | Misrepresents capability as availability |
+| Swallowing errors, returning defaults | Hides uncertainty behind false success |
+| Specific error messages for unknown causes | False precision exceeds actual knowledge |
+| Silent retry that eventually fails | Hides intermediate state from caller |
+| "Success" metrics that count attempts | Dashboard lies about actual outcomes |
+| Never updating provisional status | Leaves consumers with stale truth |
+
+**Anti-Pattern: Integrity Theater**
+
+FIP can be misused to create **complexity theater**—elaborate status systems that appear rigorous but don't reflect reality:
+- Status endpoints that report "processing" indefinitely
+- Error taxonomies that categorize guesses as facts
+- Health checks with 47 sub-statuses nobody acts on
+- Dashboards with false precision (99.97% when you measured 3 requests)
+
+**The test:** Does the feedback help consumers make better decisions? If not, it's theater.
+
+**Relationship to Other Principles:**
+
+- **Observability-First (OFP)**: OFP provides mechanisms (logs, metrics, traces). FIP ensures what's observed is truthful. You can have excellent observability that lies.
+- **Fail Fast (FF)**: FF detects errors quickly. FIP communicates them honestly—including "detected but cause unknown."
+- **Graceful Degradation (GD)**: GD maintains partial functionality. FIP ensures degradation is honestly reported, not hidden.
+- **Design by Contract (DbC)**: DbC defines what operations should do. FIP requires that reported outcomes match actual outcomes *relative to that contract*.
+- **Explicit Dependencies (EDP)**: EDP makes dependencies visible. FIP makes dependency *status* visible—including when it's unknown.
+
+**When to Apply FIP Rigorously:**
+- User-facing operations where incorrect status causes harm (unnecessary retries, data loss, confusion)
+- Financial/legal operations where "did it succeed?" has compliance implications
+- Health checks that influence traffic routing decisions
+- External APIs where consumers can't inspect internals
+- Async workflows where callers need to track completion
+
+**When to Relax:**
+- Internal debug endpoints where approximation is acceptable
+- Truly idempotent operations where outcome ambiguity is harmless
+- Development environments where honesty overhead isn't justified
+- Best-effort metrics where trends matter more than precision (but label them as such)
+
+**Location:** [feedback-integrity-principle](./feedback-integrity-principle)
+
+**Files:**
+- [correct-implementation.js](./feedback-integrity-principle/correct-implementation.js) - Shows proper FIP with explicit contract boundaries, honest acknowledgment vs completion distinction, layered truth for different audiences, operation tracking with status updates, health checks reflecting actual capability, cache responses with staleness indicators, and metrics measuring actual outcomes
+- [violation.js](./feedback-integrity-principle/violation.js) - Demonstrates FIP violations: returning "success" for queued work, health checks that lie about capability, swallowing errors and returning defaults, false precision in error messages, fire-and-forget without tracking, metrics counting attempts as successes, and async status that never updates
+
+**Key Concept:**
+Violation: Systems misrepresent their state, capabilities, and outcomes. An order API returns "success" when the order is merely queued—callers believe completion when processing hasn't started. Health checks report "healthy" by verifying process liveness while the database is unreachable. Error handlers swallow exceptions and return fabricated default data. Payment failures are diagnosed with false precision ("card declined by issuer") when the actual cause is unknown. Fire-and-forget notifications claim "sent successfully" with no delivery tracking. Metrics dashboards show 99% success rate by counting attempts, not outcomes. Async job status endpoints report "processing" forever because completion is never recorded. Users, operators, and automated systems all make decisions based on lies.
+
+Correct: Every operation communicates outcomes that are honest about scope, appropriate to audience, and bounded by contract. Order submission returns "accepted" (not "success") with explicit guarantees about what is and isn't done, plus a status URL for tracking actual completion. Health checks verify actual capability—database connectivity, dependency availability—and honestly report "degraded" when partially functional. Errors are classified by what is actually known: "timeout contacting service" (honest uncertainty) vs "card declined" (confirmed cause). Cache responses include freshness indicators so callers know data age. Notification delivery is tracked with per-item status. Metrics distinguish started/succeeded/failed/unknown, and success rate is calculated only from confirmed outcomes. Status endpoints update as operations progress. When certainty is impossible, uncertainty is surfaced rather than hidden behind confident-sounding lies. FIP is a corrective principle—constraining deception, not demanding omniscience. Used well, it builds trust by making systems honest about their limitations.
