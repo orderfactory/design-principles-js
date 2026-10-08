@@ -57,7 +57,7 @@ The Interface Segregation Principle states that clients should not be forced to 
 - [violation.js](./interface-segregation-principle/violation.js) - Demonstrates a violation of ISP with a "fat interface" that forces classes to implement methods they don't need
 
 **Key Concept:**
-The ISP is violated when interfaces are too large and force implementing classes to provide implementations for methods they don't use. In the violation example, a MultiFunctionDevice interface forces BasicPrinter and BasicScanner to implement methods they don't support, leading to runtime errors. The correct implementation uses smaller, focused interfaces and composition to create objects with exactly the capabilities they need.
+The ISP is violated when interfaces are too large and force implementing classes to provide implementations for methods they don't use. In the violation example, a MultiFunctionDevice interface forces BasicPrinter and BasicScanner to implement methods they don't support, leading to runtime errors. The correct implementation splits the capabilities into small roles (Printable, Scannable, Faxable, Copyable) that are combined as class mixins, so each device offers only the methods it can actually perform, and each client function depends only on the one role it uses.
 
 ### 5. Single Responsibility Principle (SRP)
 
@@ -66,7 +66,7 @@ The Single Responsibility Principle states that a class should have only one rea
 **Location:** [single-responsibility-principle](./single-responsibility-principle)
 
 **Files:**
-- [correct-implementation.js](./single-responsibility-principle/correct-implementation.js) - Shows a proper implementation of SRP using separate classes for user data, validation, and persistence
+- [correct-implementation.js](./single-responsibility-principle/correct-implementation.js) - Shows a proper implementation of SRP using separate classes for user data, validation, persistence, and reporting
 - [violation.js](./single-responsibility-principle/violation.js) - Demonstrates a violation of SRP with a single class handling multiple responsibilities
 
 **Key Concept:**

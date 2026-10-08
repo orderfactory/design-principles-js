@@ -8,6 +8,7 @@
  * 1. User data management (User class)
  * 2. User validation (UserValidator class)
  * 3. User persistence (UserRepository class)
+ * 4. User reporting (UserReportGenerator class)
  *
  * Each class has a single responsibility and a single reason to change.
  */
@@ -39,12 +40,12 @@ class UserValidator {
   }
 
   static validateName(name) {
-    return name && name.trim().length > 0;
+    return typeof name === 'string' && name.trim().length > 0;
   }
 
   static validateUser(user) {
-    return this.validateName(user.getName()) &&
-           this.validateEmail(user.getEmail());
+    return UserValidator.validateName(user.getName()) &&
+           UserValidator.validateEmail(user.getEmail());
   }
 
   // Only methods related to validation belong here
@@ -74,18 +75,41 @@ class UserRepository {
   // Only methods related to persistence belong here
 }
 
+// UserReportGenerator class - responsible only for reporting
+class UserReportGenerator {
+  static generateReport(user) {
+    return `User Report:
+      ID: ${user.id}
+      Name: ${user.getName()}
+      Email: ${user.getEmail()}
+      Valid: ${UserValidator.validateUser(user)}`;
+  }
+
+  // Only methods related to reporting belong here
+}
+
 // Usage
 const user = new User(1, 'John Doe', 'john.doe@example.com');
-const validator = new UserValidator();
 const repository = new UserRepository();
 
 // Each class is used for its specific responsibility
 if (UserValidator.validateUser(user)) {
   repository.save(user);
+  console.log(UserReportGenerator.generateReport(user));
 }
+
+// validateUser doesn't rely on `this`, so it also works when passed as a callback
+const newUsers = [
+  new User(2, 'Jane Smith', 'jane.smith@example.com'),
+  new User(3, '', 'nameless@example.com'),
+  new User(4, 'Bob Brown', 'not-an-email')
+];
+const validNames = newUsers.filter(UserValidator.validateUser).map(validUser => validUser.getName());
+console.log(`Valid users: ${validNames.join(', ')}`); // Valid users: Jane Smith
 
 // This demonstrates SRP because:
 // 1. User class is only responsible for user data
 // 2. UserValidator class is only responsible for validation
 // 3. UserRepository class is only responsible for persistence
+// 4. UserReportGenerator class is only responsible for reporting
 // If any of these responsibilities need to change, only one class needs to be modified

@@ -44,6 +44,9 @@ class PushNotificationSender extends MessageSender {
 
 // High-level module that depends on the abstraction
 class NotificationService {
+  /**
+   * @param {MessageSender} messageSender - Any implementation of the MessageSender abstraction
+   */
   constructor(messageSender) {
     // Dependency is injected through constructor
     this.messageSender = messageSender;

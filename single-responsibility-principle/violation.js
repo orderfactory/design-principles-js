@@ -6,17 +6,19 @@
  * 1. User data management
  * 2. User validation
  * 3. User persistence
+ * 4. User reporting
  *
  * This violates SRP because the class has multiple reasons to change.
  */
 
 // User class with multiple responsibilities - violates SRP
 class User {
+  static users = []; // Shared store for all saved users (persistence responsibility)
+
   constructor(id, name, email) {
     this.id = id;
     this.name = name;
     this.email = email;
-    this.users = []; // For storing users (persistence responsibility)
   }
 
   // Data management responsibility
@@ -35,7 +37,7 @@ class User {
   }
 
   validateName() {
-    return this.name && this.name.trim().length > 0;
+    return typeof this.name === 'string' && this.name.trim().length > 0;
   }
 
   isValid() {
@@ -49,13 +51,13 @@ class User {
       throw new Error('Cannot save invalid user');
     }
 
-    this.users.push(this);
+    User.users.push(this);
     console.log(`User ${this.name} saved successfully`);
     return true;
   }
 
-  findById(id) {
-    return this.users.find(user => user.id === id);
+  static findById(id) {
+    return User.users.find(user => user.id === id);
   }
 
   // Reporting responsibility (yet another responsibility)
